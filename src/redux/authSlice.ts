@@ -18,15 +18,15 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk(
   "auth/login",
-  async (credentials: { email: string; password: string }, thunkAPI) => {
+  async (credentials: { userNumber: string; password: string }, thunkAPI) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await auth.post("/login", credentials);
-      const {
-        data: { user },
-      } = await auth.get("/current-user");
+      // const {
+      //   data: { user },
+      // } = await auth.get("/current-user");
 
-      return { accessToken: response.data.accessToken, user };
+      return { accessToken: response.data.accessToken, user: response.data.user };
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response.data.message);
     }
