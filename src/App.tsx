@@ -1,10 +1,16 @@
-import { Button } from "./components/ui/button";
-
+import AuthRegister from "./pages/authForms/AuthRegister";
+import Login from "./pages/login/Login";
+import {BrowserRouter as Router,Route,Routes} from "react-router-dom" ;
+import Register from "./pages/register/Register";
 function App() {
   return (
-    <div className="flex justify-center items-center h-screen">
-      <Button>Click me</Button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        {/* Add more routes here as needed */}
+      </Routes>
+    </Router>
   );
 }
 
