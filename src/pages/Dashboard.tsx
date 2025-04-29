@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAppSelector } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Role, RequestStatus, PanicReportStatus } from "@/lib/types";
+import { UserRole, RequestStatus, PanicReportStatus } from "@/lib/types";
 import {
   PieChart,
   Pie,
@@ -63,9 +63,7 @@ export default function Dashboard() {
   ).length;
 
   const totalMaintenanceRequests = maintenanceRequests.length;
-  const pendingMaintenanceRequests = maintenanceRequests.filter(
-    (r) => r.status === PanicReportStatus.REPORTED
-  ).length;
+
   const inProgressMaintenanceRequests = maintenanceRequests.filter(
     (r) => r.status === PanicReportStatus.IN_PROGRESS
   ).length;
@@ -92,24 +90,12 @@ export default function Dashboard() {
   const requestStatusData = [
     {
       name: "Brouillon",
-      value: requests.filter((r) => r.status === RequestStatus.DRAFT).length,
+      value: requests.filter((r) => r.status === RequestStatus.SUBMITTED)
+        .length,
       color: "#94a3b8",
     },
     { name: "Soumis", value: pendingRequests, color: "#f59e0b" },
     { name: "Approuvé", value: approvedRequests, color: "#22c55e" },
-    {
-      name: "Appel d'offre",
-      value: requests.filter((r) => r.status === RequestStatus.TENDER_CREATED)
-        .length,
-      color: "#3b82f6",
-    },
-    {
-      name: "Fournisseur sélectionné",
-      value: requests.filter(
-        (r) => r.status === RequestStatus.SUPPLIER_SELECTED
-      ).length,
-      color: "#8b5cf6",
-    },
     {
       name: "Livré",
       value: requests.filter((r) => r.status === RequestStatus.SENT).length,
@@ -131,10 +117,6 @@ export default function Dashboard() {
       name: "Imprimantes",
       value: resources.filter((r) => r.type === "PRINTER").length,
     },
-    {
-      name: "Autres",
-      value: resources.filter((r) => r.type === "OTHER").length,
-    },
   ];
 
   // Conditional rendering based on user role
@@ -145,15 +127,15 @@ export default function Dashboard() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          {(user?.role === Role.RESOURCE_MANAGER ||
-            user?.role === Role.DEPARTMENT_HEAD) && (
+          {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
+            user?.role.includes(UserRole.DEPARTMENT_HEAD)) && (
             <TabsTrigger value="requests">Demandes</TabsTrigger>
           )}
-          {(user?.role === Role.RESOURCE_MANAGER ||
-            user?.role === Role.MAINTENANCE) && (
+          {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
+            user?.role.includes(UserRole.MAINTENANCE)) && (
             <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           )}
-          {user?.role === Role.SUPPLIER && (
+          {user?.role.includes(UserRole.SUPPLIER) && (
             <TabsTrigger value="tenders">Appels d'offre</TabsTrigger>
           )}
         </TabsList>
@@ -269,8 +251,8 @@ export default function Dashboard() {
           </div>
         </TabsContent>
 
-        {(user?.role === Role.RESOURCE_MANAGER ||
-          user?.role === Role.DEPARTMENT_HEAD) && (
+        {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
+          user?.role.includes(UserRole.DEPARTMENT_HEAD)) && (
           <TabsContent value="requests" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="dashboard-card">
@@ -336,8 +318,8 @@ export default function Dashboard() {
           </TabsContent>
         )}
 
-        {(user?.role === Role.RESOURCE_MANAGER ||
-          user?.role === Role.MAINTENANCE) && (
+        {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
+          user?.role.includes(UserRole.MAINTENANCE)) && (
           <TabsContent value="maintenance" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="dashboard-card">
@@ -359,11 +341,6 @@ export default function Dashboard() {
                     Signalés
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-500">
-                    {pendingMaintenanceRequests}
-                  </div>
-                </CardContent>
               </Card>
 
               <Card className="dashboard-card">
@@ -382,7 +359,7 @@ export default function Dashboard() {
           </TabsContent>
         )}
 
-        {user?.role === Role.SUPPLIER && (
+        {user?.role.includes(UserRole.SUPPLIER) && (
           <TabsContent value="tenders" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="dashboard-card">
