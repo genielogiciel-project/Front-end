@@ -44,6 +44,8 @@ export function RequestList({
           onSubmit={(updatedData) => {
             onUpdate(editingRequest.id, updatedData);
             setEditingRequest(null);
+
+            console.log(editingRequest.id, updatedData);
           }}
         />
       )}

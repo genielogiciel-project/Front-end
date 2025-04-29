@@ -9,7 +9,8 @@ export const useGetAllRequests = () => {
     queryKey: ["requests"],
     queryFn: async () => {
       try {
-        const { data } = await api("/resource-request");
+        const { data } = await api.get("/resource-request");
+        console.log(data);
         return data;
       } catch (error) {
         console.error("Error fetching requests:", error);
@@ -52,10 +53,7 @@ export const useUpdateRequest = () => {
       updatedData: ResourceRequest;
     }) => {
       try {
-        const { data } = await api.patch(
-          `/resource-request/${id}`,
-          updatedData
-        );
+        const { data } = await api.put(`/resource-request/${id}`, updatedData);
         return data;
       } catch (error) {
         console.error("Error updating request:", error);

@@ -46,7 +46,7 @@ export default function Requests() {
       />
       <RequestList
         requests={filteredRequests}
-        onUpdate={(id) => console.log("Update request", id)}
+        onUpdate={(id, updatedData) => updateRequest({ id, ...updatedData })}
         onDelete={(id) => {
           if (confirm("Are you sure you want to delete this request?")) {
             deleteRequest(id);
