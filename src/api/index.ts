@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/store";
-import { login } from "@/features/auth/authSlice";
+import { login, refreshToken } from "@/features/auth/authSlice";
 const PORT = 8080; // Replace with your actual port number
 
 const api = axios.create({
@@ -36,13 +36,13 @@ export const useAPI = () => {
 
         try {
           const resultAction = await dispatch(
-            login({
+            refreshToken({
               userNumber: user?.userNumber as string,
               password: user?.password as string,
             })
           ); // Replace with actual credentials);
 
-          if (login.fulfilled.match(resultAction)) {
+          if (refreshToken.fulfilled.match(resultAction)) {
             const newToken = resultAction.payload.accessToken;
 
             api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
