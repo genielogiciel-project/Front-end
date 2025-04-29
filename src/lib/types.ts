@@ -99,6 +99,7 @@ export const MaintenanceRequestSchema = z.object({
 // Type definitions
 export type User = {
   id: string;
+  fullName: string;
   userNumber: string;
   password: string;
   role: UserRole[];

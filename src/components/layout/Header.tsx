@@ -22,6 +22,10 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  // @ts-ignore
+  const name =
+    // @ts-ignore
+    user?.fullName?.charAt(0).toUpperCase() + user?.fullName?.slice(1);
   const { notifications } = useAppSelector((state) => state.notifications);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -31,19 +35,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
     dispatch(logout());
   };
 
-  const getRoleName = (role: UserRole) => {
-    switch (role) {
-      case UserRole.DEPARTMENT_HEAD:
-        return "Chef de département";
-      case UserRole.RESOURCE_MANAGER:
-        return "Responsable des ressources";
-      case UserRole.MAINTENANCE:
-        return "Service de maintenance";
-      case UserRole.SUPPLIER:
-        return "Fournisseur";
-      default:
-        return role;
-    }
+  const getRoleName = (role: UserRole[]) => {
+    if (role.includes(UserRole.DEPARTMENT_HEAD)) return "Chef de département";
+    if (role.includes(UserRole.RESOURCE_MANAGER))
+      return "Responsable des ressources";
+    if (role.includes(UserRole.MAINTENANCE)) return "Service de maintenance";
+    if (role.includes(UserRole.SUPPLIER)) return "Fournisseur";
+
+    return role;
   };
 
   return (
@@ -117,14 +116,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
             >
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
-                  {user?.name
+                  {user?.fullName
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
-                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-sm font-medium">{name || ""}</p>
                 <p className="text-xs text-muted-foreground">
                   {user?.role ? getRoleName(user.role) : ""}
                 </p>

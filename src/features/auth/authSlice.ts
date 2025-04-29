@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { User, UserRole } from "@/lib/types";
 import { auth } from "@/api/api";
-import { Action } from "@radix-ui/react-toast";
 
 interface AuthState {
   user: User | null;
@@ -11,15 +10,15 @@ interface AuthState {
   error: string | null;
 }
 
+const user = localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user")!)
+  : null;
+const token = localStorage.getItem("token");
+
 const initialState: AuthState = {
-  user: {
-    id: "AYOUB",
-    userNumber: "0",
-    password: "0",
-    role: [UserRole.SUPER_ADMIN],
-  },
-  token: null,
-  isAuthenticated: false,
+  user: user || null,
+  token: token || null,
+  isAuthenticated: user ? true : false,
   loading: true,
   error: null,
 };
@@ -28,11 +27,14 @@ export const login = createAsyncThunk(
   "auth/login",
   async (credentials: { userNumber: string; password: string }, thunkAPI) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // await new Promise((resolve) => setTimeout(resolve, 500));
       const response = await auth.post("/login", credentials);
       // const {
       //   data: { user },
       // } = await auth.get("/current-user");
+
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("token", response.data.accessToken);
 
       return {
         accessToken: response.data.accessToken,
@@ -46,14 +48,23 @@ export const login = createAsyncThunk(
 
 export const refreshToken = createAsyncThunk(
   "auth/refresh",
-  async (_, thunkAPI) => {
+  async (credentials: { userNumber: string; password: string }, thunkAPI) => {
     try {
-      const response = await auth.post("/refresh");
-      const {
-        data: { user },
-      } = await auth.get("/current-user");
+      const response = await auth.post("/refresh", {
+        userNumber: credentials.userNumber,
+        password: credentials.password,
+      });
 
-      return { accessToken: response.data.accessToken, user };
+      localStorage.setItem("token", response.data.accessToken);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      // const {
+      //   data: { user },
+      // } = await auth.get("/current-user");
+
+      return {
+        accessToken: response.data.accessToken,
+        user: response.data.user,
+      };
     } catch (error: any) {
       return thunkAPI.rejectWithValue("Failed to refresh token"); // "Failed to refresh token" | null
     }
@@ -63,7 +74,10 @@ export const refreshToken = createAsyncThunk(
 export const logout = createAsyncThunk("auth/logout", async (_, thunkAPI) => {
   try {
     // await new Promise((resolve) => setTimeout(resolve, 500));
-    await auth.post("/logout");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    // await auth.post("/logout");
+
     return {};
   } catch (error: any) {
     return thunkAPI.rejectWithValue("Logout failed");
@@ -91,6 +105,7 @@ const authSlice = createSlice({
         state.error = (action.payload as string) || "Login failed";
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
+        console.log(action.payload);
         state.user = action.payload.user;
         state.token = action.payload.accessToken;
         state.isAuthenticated = true;

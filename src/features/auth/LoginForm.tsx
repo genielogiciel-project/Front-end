@@ -28,7 +28,7 @@ import { Form } from "@/components/ui/form";
 export default function LoginForm() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [userNumber, setUserNumber] = useState("0");
+  const [userNumber, setUserNumber] = useState("00000");
   const [password, setPassword] = useState("0");
 
   useEffect(() => {
@@ -48,19 +48,21 @@ export default function LoginForm() {
     e.preventDefault();
     const { payload } = await dispatch(login({ userNumber, password }));
 
+    // console.log(payload);
+
     // For demo purposes, check if the email exists in our mock data
-    setTimeout(() => {
-      // const user = MOCK_USERS[userNumber];
-      // if (user && password === "password") {
-      //   dispatch(loginSuccess(user));
-      //   navigate("/dashboard");
-      // } else {
-      //   dispatch(loginFailure("Email ou mot de passe incorrect"));
-      // }
-      if (userNumber == "0" && password == "0") {
-        navigate("/dashboard");
-      }
-    }, 1000);
+    // setTimeout(() => {
+    // const user = MOCK_USERS[userNumber];
+    // if (user && password === "password") {
+    //   dispatch(loginSuccess(user));
+    //   navigate("/dashboard");
+    // } else {
+    //   dispatch(loginFailure("Email ou mot de passe incorrect"));
+    // }
+    // if (userNumber == "0" && password == "0") {
+    navigate("/dashboard");
+    // }
+    // }, 1000);
   };
 
   return (

@@ -1,21 +1,22 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@/lib/store";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/auth/useAuth";
 
 export function Middleware() {
-  // const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { user, isAuthenticated } = useAuth();
+  console.log({ user, isAuthenticated });
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // useEffect(() => {
-  //   if (!isAuthenticated) {
-  //     navigate("/login");
-  //   }
-  // }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
 
   // if (!isAuthenticated || !user) {
   //   return null;
@@ -29,7 +30,7 @@ export function Middleware() {
       />
       <div
         className={cn(
-          "flex flex-col flex-1 overflow-hidden transition-all duration-300",
+          "flex flex-col flex-1 overflow-hidden transition-all duration-300"
           // !sidebarOpen && "ml-[30px]"
         )}
       >

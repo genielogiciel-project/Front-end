@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../redux/store";
-import { login } from "../redux/authSlice";
+import { AppDispatch, RootState } from "@/lib/store";
+import { login } from "@/features/auth/authSlice";
 const PORT = 8080; // Replace with your actual port number
 
 const api = axios.create({

@@ -1,19 +1,36 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../redux/store";
-import { login, logout, refreshToken } from "../redux/authSlice";
+import { login, logout, refreshToken } from "../features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
 
 export const useAuth = (ok: boolean = true) => {
-  const { user, token, loading, error } = useSelector(
-    (state: RootState) => state.auth
+  const { user, token, isAuthenticated, loading, error } = useAppSelector(
+    (state) => state.auth
   );
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   let refresh = true;
 
   useEffect(() => {
-    refresh && ok && dispatch(refreshToken());
+    // refresh && ok && dispatch(refreshToken());
+    refresh &&
+      ok &&
+      dispatch(
+        refreshToken({
+          userNumber: user?.userNumber as string,
+          password: user?.password as string,
+        })
+      );
     refresh = false;
   }, []);
 
-  return { user, token, error, loading, dispatch, login, refreshToken, logout };
+  return {
+    user,
+    token,
+    isAuthenticated,
+    error,
+    loading,
+    dispatch,
+    login,
+    refreshToken,
+    logout,
+  };
 };

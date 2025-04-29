@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useAppSelector } from "@/lib/store";
+import { useAppDispatch, useAppSelector } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import {
   Home,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserRole } from "@/lib/types";
+import { logout } from "@/features/auth/authSlice";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -85,13 +86,18 @@ const navigation = [
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
   const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   let filteredNavigation = navigation;
-  if (user?.role != UserRole.SUPER_ADMIN) {
-    filteredNavigation = navigation.filter(
-      (item) => user?.role && item.roles.includes(user.role)
+  if (!user?.role.includes(UserRole.SUPER_ADMIN)) {
+    filteredNavigation = navigation.filter((item) =>
+      user?.role.filter((role) => item.roles.includes(role))
     );
   }
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   return (
     <div
@@ -162,6 +168,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
 
       <div className="p-4 border-t border-border">
         <Button
+          onClick={handleLogout}
           variant="outline"
           className={cn(
             "w-full justify-start",
