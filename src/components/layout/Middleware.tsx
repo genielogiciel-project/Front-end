@@ -29,8 +29,8 @@ export function Middleware() {
       />
       <div
         className={cn(
-          "flex flex-col flex-1 overflow-hidden transition-all duration-300"
-          // !sidebarOpen && "ml-[30px]"
+          "flex flex-col flex-1 overflow-hidden transition-all duration-300",
+          !sidebarOpen && "ml-[50px]"
         )}
       >
         <Header onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
