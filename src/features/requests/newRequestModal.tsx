@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,17 @@ import {
   DialogFooter,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface NewRequestModalProps {
   open: boolean;
@@ -23,38 +29,48 @@ interface NewRequestModalProps {
 interface NewRequestData {
   departmentId: string;
   justification: string;
-  resourceType: 'COMPUTER' | 'PRINTER';
+  resourceType: "COMPUTER" | "PRINTER";
   quantity: number;
 }
 
-export function NewRequestModal({ open, onClose, onSubmit }: NewRequestModalProps) {
-  const [departmentId, setDepartmentId] = useState('');
-  const [justification, setJustification] = useState('');
-  const [resourceType, setResourceType] = useState<'COMPUTER' | 'PRINTER'>('COMPUTER');
+export function NewRequestModal({
+  open,
+  onClose,
+  onSubmit,
+}: NewRequestModalProps) {
+  const [departmentId, setDepartmentId] = useState("");
+  const [justification, setJustification] = useState("");
+  const [resourceType, setResourceType] = useState<"COMPUTER" | "PRINTER">(
+    "COMPUTER"
+  );
   const [quantity, setQuantity] = useState(1);
 
   const handleSubmit = () => {
-    const data: NewRequestData = { departmentId, justification, resourceType, quantity };
+    const data: NewRequestData = {
+      departmentId,
+      justification,
+      resourceType,
+      quantity,
+    };
     onSubmit(data);
     onClose();
     // Optionally, reset the form fields
-    setDepartmentId('');
-    setJustification('');
-    setResourceType('COMPUTER');
+    setDepartmentId("");
+    setJustification("");
+    setResourceType("COMPUTER");
     setQuantity(1);
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-<DialogContent
-  className="sm:max-w-[600px] animate-in fade-in zoom-in-95"
->
-            <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] animate-in fade-in zoom-in-95">
+        <DialogHeader>
           <DialogTitle>Créer une Nouvelle Demande</DialogTitle>
           <DialogDescription>
-            Remplissez les informations ci-dessous pour soumettre une nouvelle demande de ressources.
+            Remplissez les informations ci-dessous pour soumettre une nouvelle
+            demande de ressources.
           </DialogDescription>
-        </DialogHeader> 
+        </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -87,7 +103,12 @@ export function NewRequestModal({ open, onClose, onSubmit }: NewRequestModalProp
             <label htmlFor="resourceType" className="text-right">
               Type de Ressource
             </label>
-            <Select value={resourceType} onValueChange={(value) => setResourceType(value as 'COMPUTER' | 'PRINTER')}>
+            <Select
+              value={resourceType}
+              onValueChange={(value) =>
+                setResourceType(value as "COMPUTER" | "PRINTER")
+              }
+            >
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Choisir type" />
               </SelectTrigger>

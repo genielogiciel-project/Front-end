@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import { useAppSelector } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ResourceType } from '@/lib/types';
-import { Search, Filter, Plus, Monitor, Printer } from 'lucide-react';
+import { useState } from "react";
+import { useAppSelector } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ResourceType } from "@/lib/types";
+import { Search, Filter, Plus, Monitor, Printer } from "lucide-react";
 
 export default function Resources() {
   const { resources } = useAppSelector((state) => state.resources);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<ResourceType | 'ALL'>('ALL');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState<ResourceType | "ALL">("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
-  const filteredResources = resources.filter(resource => {
-    const matchesSearch = resource.inventoryNumber.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === 'ALL' || resource.type === typeFilter;
-    const matchesStatus = statusFilter === 'ALL' || resource.status === statusFilter;
+  const filteredResources = resources.filter((resource) => {
+    const matchesSearch = resource.inventoryNumber
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesType = typeFilter === "ALL" || resource.type === typeFilter;
+    const matchesStatus =
+      statusFilter === "ALL" || resource.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
 
@@ -40,7 +49,12 @@ export default function Resources() {
             className="pl-8"
           />
         </div>
-        <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as ResourceType | 'ALL')}>
+        <Select
+          value={typeFilter}
+          onValueChange={(value) =>
+            setTypeFilter(value as ResourceType | "ALL")
+          }
+        >
           <SelectTrigger className="w-[200px]">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Type de ressource" />
@@ -49,7 +63,7 @@ export default function Resources() {
             <SelectItem value="ALL">Tous les types</SelectItem>
             {Object.values(ResourceType).map((type) => (
               <SelectItem key={type} value={type}>
-                {type === ResourceType.COMPUTER ? 'Ordinateur' : 'Imprimante'}
+                {type === ResourceType.COMPUTER ? "Ordinateur" : "Imprimante"}
               </SelectItem>
             ))}
           </SelectContent>
@@ -81,18 +95,27 @@ export default function Resources() {
                     <Printer className="h-5 w-5" />
                   )}
                   <div>
-                    <CardTitle className="text-lg">{resource.inventoryNumber}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {resource.inventoryNumber}
+                    </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      {resource.type === ResourceType.COMPUTER ? 'Ordinateur' : 'Imprimante'}
+                      {resource.type === ResourceType.COMPUTER
+                        ? "Ordinateur"
+                        : "Imprimante"}
                     </p>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-sm ${
-                  resource.status === 'AVAILABLE' ? 'bg-green-100 text-green-800' :
-                  resource.status === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-800' :
-                  resource.status === 'DISPOSED' ? 'bg-red-100 text-red-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
+                <div
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    resource.status === "AVAILABLE"
+                      ? "bg-green-100 text-green-800"
+                      : resource.status === "MAINTENANCE"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : resource.status === "DISPOSED"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-blue-100 text-blue-800"
+                  }`}
+                >
                   {resource.status}
                 </div>
               </div>
@@ -121,15 +144,19 @@ export default function Resources() {
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Département:</h4>
-                  <p className="text-sm text-muted-foreground">{resource.departmentId}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {resource.departmentId}
+                  </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium">Dates:</h4>
                   <p className="text-sm text-muted-foreground">
-                    Acquisition: {new Date(resource.acquisitionDate).toLocaleDateString()}
+                    Acquisition:{" "}
+                    {new Date(resource.acquisitionDate).toLocaleDateString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Fin de garantie: {new Date(resource.warrantyEndDate).toLocaleDateString()}
+                    Fin de garantie:{" "}
+                    {new Date(resource.warrantyEndDate).toLocaleDateString()}
                   </p>
                 </div>
               </div>

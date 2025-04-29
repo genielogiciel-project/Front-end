@@ -1,21 +1,41 @@
-import { useState } from 'react';
-import { useAppSelector } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MaintenanceStatus } from '@/lib/types';
-import { Search, Filter, Plus, AlertTriangle, CheckCircle, Clock, ArrowLeftRight } from 'lucide-react';
+import { useState } from "react";
+import { useAppSelector } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MaintenanceStatus } from "@/lib/types";
+import {
+  Search,
+  Filter,
+  Plus,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ArrowLeftRight,
+} from "lucide-react";
 
 export default function Maintenance() {
   const { requests } = useAppSelector((state) => state.maintenance);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | 'ALL'>('ALL');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | "ALL">(
+    "ALL"
+  );
 
-  const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.issueDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         request.resourceId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || request.status === statusFilter;
+  const filteredRequests = requests.filter((request) => {
+    const matchesSearch =
+      request.issueDescription
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      request.resourceId.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "ALL" || request.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -54,7 +74,12 @@ export default function Maintenance() {
             className="pl-8"
           />
         </div>
-        <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as MaintenanceStatus | 'ALL')}>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) =>
+            setStatusFilter(value as MaintenanceStatus | "ALL")
+          }
+        >
           <SelectTrigger className="w-[200px]">
             <Filter className="mr-2 h-4 w-4" />
             <SelectValue placeholder="Filtrer par statut" />
@@ -78,18 +103,26 @@ export default function Maintenance() {
                 <div className="flex items-center gap-2">
                   {getStatusIcon(request.status)}
                   <div>
-                    <CardTitle className="text-lg">Maintenance #{request.id}</CardTitle>
+                    <CardTitle className="text-lg">
+                      Maintenance #{request.id}
+                    </CardTitle>
                     <p className="text-sm text-muted-foreground">
                       Ressource: {request.resourceId}
                     </p>
                   </div>
                 </div>
-                <div className={`px-3 py-1 rounded-full text-sm ${
-                  request.status === MaintenanceStatus.RESOLVED ? 'bg-green-100 text-green-800' :
-                  request.status === MaintenanceStatus.IN_PROGRESS ? 'bg-blue-100 text-blue-800' :
-                  request.status === MaintenanceStatus.RETURNED_TO_SUPPLIER ? 'bg-purple-100 text-purple-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
+                <div
+                  className={`px-3 py-1 rounded-full text-sm ${
+                    request.status === MaintenanceStatus.RESOLVED
+                      ? "bg-green-100 text-green-800"
+                      : request.status === MaintenanceStatus.IN_PROGRESS
+                        ? "bg-blue-100 text-blue-800"
+                        : request.status ===
+                            MaintenanceStatus.RETURNED_TO_SUPPLIER
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
                   {request.status}
                 </div>
               </div>
@@ -98,30 +131,44 @@ export default function Maintenance() {
               <div className="space-y-4">
                 <div>
                   <h4 className="font-medium mb-1">Description du problème:</h4>
-                  <p className="text-sm text-muted-foreground">{request.issueDescription}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {request.issueDescription}
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h4 className="font-medium mb-1">Type de problème:</h4>
                     <p className="text-sm text-muted-foreground">
-                      {request.issueType === 'SOFTWARE' ? 'Logiciel' : 'Matériel'}
+                      {request.issueType === "SOFTWARE"
+                        ? "Logiciel"
+                        : "Matériel"}
                     </p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-1">Fréquence:</h4>
-                    <p className="text-sm text-muted-foreground">{request.issueFrequency}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {request.issueFrequency}
+                    </p>
                   </div>
                 </div>
                 {request.resolution && (
                   <div>
                     <h4 className="font-medium mb-1">Résolution:</h4>
-                    <p className="text-sm text-muted-foreground">{request.resolution}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {request.resolution}
+                    </p>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <span>Signalé le: {new Date(request.reportedAt).toLocaleDateString()}</span>
+                  <span>
+                    Signalé le:{" "}
+                    {new Date(request.reportedAt).toLocaleDateString()}
+                  </span>
                   {request.resolvedAt && (
-                    <span>Résolu le: {new Date(request.resolvedAt).toLocaleDateString()}</span>
+                    <span>
+                      Résolu le:{" "}
+                      {new Date(request.resolvedAt).toLocaleDateString()}
+                    </span>
                   )}
                 </div>
               </div>

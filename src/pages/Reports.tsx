@@ -1,62 +1,102 @@
-import { useState } from 'react';
-import { useAppSelector } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, Filter } from 'lucide-react';
+import { useState } from "react";
+import { useAppSelector } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { Download, Filter } from "lucide-react";
 
 export default function Reports() {
   const { resources } = useAppSelector((state) => state.resources);
   const { requests } = useAppSelector((state) => state.requests);
-  const { requests: maintenanceRequests } = useAppSelector((state) => state.maintenance);
-  const [periodFilter, setPeriodFilter] = useState('month');
+  const { requests: maintenanceRequests } = useAppSelector(
+    (state) => state.maintenance
+  );
+  const [periodFilter, setPeriodFilter] = useState("month");
 
   // Resource statistics
-  const resourcesByType = resources.reduce((acc, resource) => {
-    acc[resource.type] = (acc[resource.type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const resourcesByType = resources.reduce(
+    (acc, resource) => {
+      acc[resource.type] = (acc[resource.type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
-  const resourcesByStatus = resources.reduce((acc, resource) => {
-    acc[resource.status] = (acc[resource.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const resourcesByStatus = resources.reduce(
+    (acc, resource) => {
+      acc[resource.status] = (acc[resource.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
-  const resourceTypeData = Object.entries(resourcesByType).map(([type, count]) => ({
-    name: type === 'COMPUTER' ? 'Ordinateurs' : 'Imprimantes',
-    value: count,
-  }));
+  const resourceTypeData = Object.entries(resourcesByType).map(
+    ([type, count]) => ({
+      name: type === "COMPUTER" ? "Ordinateurs" : "Imprimantes",
+      value: count,
+    })
+  );
 
-  const resourceStatusData = Object.entries(resourcesByStatus).map(([status, count]) => ({
-    name: status,
-    value: count,
-  }));
+  const resourceStatusData = Object.entries(resourcesByStatus).map(
+    ([status, count]) => ({
+      name: status,
+      value: count,
+    })
+  );
 
   // Request statistics
-  const requestsByStatus = requests.reduce((acc, request) => {
-    acc[request.status] = (acc[request.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const requestsByStatus = requests.reduce(
+    (acc, request) => {
+      acc[request.status] = (acc[request.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
-  const requestStatusData = Object.entries(requestsByStatus).map(([status, count]) => ({
-    name: status,
-    value: count,
-  }));
+  const requestStatusData = Object.entries(requestsByStatus).map(
+    ([status, count]) => ({
+      name: status,
+      value: count,
+    })
+  );
 
   // Maintenance statistics
-  const maintenanceByStatus = maintenanceRequests.reduce((acc, request) => {
-    acc[request.status] = (acc[request.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const maintenanceByStatus = maintenanceRequests.reduce(
+    (acc, request) => {
+      acc[request.status] = (acc[request.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
-  const maintenanceStatusData = Object.entries(maintenanceByStatus).map(([status, count]) => ({
-    name: status,
-    value: count,
-  }));
+  const maintenanceStatusData = Object.entries(maintenanceByStatus).map(
+    ([status, count]) => ({
+      name: status,
+      value: count,
+    })
+  );
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
 
   return (
     <div className="space-y-6">
@@ -104,13 +144,18 @@ export default function Reports() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) =>
+                          `${name}: ${(percent * 100).toFixed(0)}%`
+                        }
                         outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
                         {resourceTypeData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -157,7 +202,11 @@ export default function Reports() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="value" name="Nombre de demandes" fill="#82ca9d" />
+                    <Bar
+                      dataKey="value"
+                      name="Nombre de demandes"
+                      fill="#82ca9d"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -179,7 +228,11 @@ export default function Reports() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="value" name="Nombre d'interventions" fill="#ffc658" />
+                    <Bar
+                      dataKey="value"
+                      name="Nombre d'interventions"
+                      fill="#ffc658"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
