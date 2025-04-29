@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAppSelector } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserRole, RequestStatus, MaintenanceStatus } from "@/lib/types";
+import { Role, RequestStatus, PanicReportStatus } from "@/lib/types";
 import {
   PieChart,
   Pie,
@@ -64,10 +64,10 @@ export default function Dashboard() {
 
   const totalMaintenanceRequests = maintenanceRequests.length;
   const pendingMaintenanceRequests = maintenanceRequests.filter(
-    (r) => r.status === MaintenanceStatus.REPORTED
+    (r) => r.status === PanicReportStatus.REPORTED
   ).length;
   const inProgressMaintenanceRequests = maintenanceRequests.filter(
-    (r) => r.status === MaintenanceStatus.IN_PROGRESS
+    (r) => r.status === PanicReportStatus.IN_PROGRESS
   ).length;
 
   const totalTenders = tenders.length;
@@ -145,15 +145,15 @@ export default function Dashboard() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          {(user?.role === UserRole.RESOURCE_MANAGER ||
-            user?.role === UserRole.DEPARTMENT_HEAD) && (
+          {(user?.role === Role.RESOURCE_MANAGER ||
+            user?.role === Role.DEPARTMENT_HEAD) && (
             <TabsTrigger value="requests">Demandes</TabsTrigger>
           )}
-          {(user?.role === UserRole.RESOURCE_MANAGER ||
-            user?.role === UserRole.MAINTENANCE) && (
+          {(user?.role === Role.RESOURCE_MANAGER ||
+            user?.role === Role.MAINTENANCE) && (
             <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           )}
-          {user?.role === UserRole.SUPPLIER && (
+          {user?.role === Role.SUPPLIER && (
             <TabsTrigger value="tenders">Appels d'offre</TabsTrigger>
           )}
         </TabsList>
@@ -269,8 +269,8 @@ export default function Dashboard() {
           </div>
         </TabsContent>
 
-        {(user?.role === UserRole.RESOURCE_MANAGER ||
-          user?.role === UserRole.DEPARTMENT_HEAD) && (
+        {(user?.role === Role.RESOURCE_MANAGER ||
+          user?.role === Role.DEPARTMENT_HEAD) && (
           <TabsContent value="requests" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="dashboard-card">
@@ -336,8 +336,8 @@ export default function Dashboard() {
           </TabsContent>
         )}
 
-        {(user?.role === UserRole.RESOURCE_MANAGER ||
-          user?.role === UserRole.MAINTENANCE) && (
+        {(user?.role === Role.RESOURCE_MANAGER ||
+          user?.role === Role.MAINTENANCE) && (
           <TabsContent value="maintenance" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="dashboard-card">
@@ -382,7 +382,7 @@ export default function Dashboard() {
           </TabsContent>
         )}
 
-        {user?.role === UserRole.SUPPLIER && (
+        {user?.role === Role.SUPPLIER && (
           <TabsContent value="tenders" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card className="dashboard-card">

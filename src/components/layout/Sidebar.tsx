@@ -15,7 +15,7 @@ import {
   Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/lib/types";
+import { Role } from "@/lib/types";
 import { logout } from "@/features/auth/authSlice";
 
 interface SidebarProps {
@@ -29,57 +29,53 @@ const navigation = [
     href: "/dashboard",
     icon: Home,
     roles: [
-      UserRole.DEPARTMENT_HEAD,
-      UserRole.RESOURCE_MANAGER,
-      UserRole.MAINTENANCE,
-      UserRole.SUPPLIER,
+      Role.DEPARTMENT_HEAD,
+      Role.RESOURCE_MANAGER,
+      Role.MAINTENANCE,
+      Role.SUPPLIER,
     ],
   },
   {
     name: "Demandes",
     href: "/requests",
     icon: FileText,
-    roles: [UserRole.DEPARTMENT_HEAD, UserRole.RESOURCE_MANAGER],
+    roles: [Role.DEPARTMENT_HEAD, Role.RESOURCE_MANAGER],
   },
   {
     name: "Appels d'offre",
     href: "/tenders",
     icon: ShoppingCart,
-    roles: [UserRole.RESOURCE_MANAGER, UserRole.SUPPLIER],
+    roles: [Role.RESOURCE_MANAGER, Role.SUPPLIER],
   },
   {
     name: "Ressources",
     href: "/resources",
     icon: Package,
-    roles: [UserRole.RESOURCE_MANAGER, UserRole.DEPARTMENT_HEAD],
+    roles: [Role.RESOURCE_MANAGER, Role.DEPARTMENT_HEAD],
   },
   {
     name: "Maintenance",
     href: "/maintenance",
     icon: AlertTriangle,
-    roles: [
-      UserRole.MAINTENANCE,
-      UserRole.DEPARTMENT_HEAD,
-      UserRole.RESOURCE_MANAGER,
-    ],
+    roles: [Role.MAINTENANCE, Role.DEPARTMENT_HEAD, Role.RESOURCE_MANAGER],
   },
   {
     name: "Fournisseurs",
     href: "/suppliers",
     icon: Users,
-    roles: [UserRole.RESOURCE_MANAGER],
+    roles: [Role.RESOURCE_MANAGER],
   },
   {
     name: "Rapports",
     href: "/reports",
     icon: ClipboardList,
-    roles: [UserRole.RESOURCE_MANAGER],
+    roles: [Role.RESOURCE_MANAGER],
   },
   {
     name: "Paramètres",
     href: "/settings",
     icon: Settings,
-    roles: [UserRole.RESOURCE_MANAGER],
+    roles: [Role.RESOURCE_MANAGER],
   },
 ];
 
@@ -89,7 +85,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
 
   let filteredNavigation = navigation;
-  if (!user?.role.includes(UserRole.SUPER_ADMIN)) {
+  if (!user?.role.includes(Role.SUPER_ADMIN)) {
     filteredNavigation = navigation.filter((item) =>
       user?.role.filter((role) => item.roles.includes(role))
     );

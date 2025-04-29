@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { MaintenanceRequest, MaintenanceStatus } from "@/lib/types";
+import { PanicReport, PanicReportStatus } from "@/lib/types";
 
 interface MaintenanceState {
-  requests: MaintenanceRequest[];
-  filteredRequests: MaintenanceRequest[];
-  currentRequest: MaintenanceRequest | null;
+  requests: PanicReport[];
+  filteredRequests: PanicReport[];
+  currentRequest: PanicReport | null;
   loading: boolean;
   error: string | null;
 }
 
 // Generate mock data
-const generateMockMaintenanceRequests = (): MaintenanceRequest[] => {
-  const requests: MaintenanceRequest[] = [];
+const generateMockMaintenanceRequests = (): PanicReport[] => {
+  const requests: PanicReport[] = [];
 
-  const statuses = Object.values(MaintenanceStatus);
+  const statuses = Object.values(PanicReportStatus);
 
   for (let i = 1; i <= 10; i++) {
     const statusIndex = i % statuses.length;
@@ -60,7 +60,7 @@ const maintenanceSlice = createSlice({
     },
     fetchMaintenanceRequestsSuccess: (
       state,
-      action: PayloadAction<MaintenanceRequest[]>
+      action: PayloadAction<PanicReport[]>
     ) => {
       state.requests = action.payload;
       state.filteredRequests = action.payload;
@@ -72,7 +72,7 @@ const maintenanceSlice = createSlice({
     },
     setCurrentMaintenanceRequest: (
       state,
-      action: PayloadAction<MaintenanceRequest | null>
+      action: PayloadAction<PanicReport | null>
     ) => {
       state.currentRequest = action.payload;
     },
@@ -80,7 +80,7 @@ const maintenanceSlice = createSlice({
       state,
       action: PayloadAction<{
         resourceId?: string;
-        status?: MaintenanceStatus;
+        status?: PanicReportStatus;
         technicianId?: string;
       }>
     ) => {
@@ -104,17 +104,11 @@ const maintenanceSlice = createSlice({
         return match;
       });
     },
-    addMaintenanceRequest: (
-      state,
-      action: PayloadAction<MaintenanceRequest>
-    ) => {
+    addMaintenanceRequest: (state, action: PayloadAction<PanicReport>) => {
       state.requests.push(action.payload);
       state.filteredRequests = state.requests;
     },
-    updateMaintenanceRequest: (
-      state,
-      action: PayloadAction<MaintenanceRequest>
-    ) => {
+    updateMaintenanceRequest: (state, action: PayloadAction<PanicReport>) => {
       const index = state.requests.findIndex((r) => r.id === action.payload.id);
       if (index !== -1) {
         state.requests[index] = action.payload;
@@ -141,11 +135,11 @@ const maintenanceSlice = createSlice({
 
       if (index !== -1) {
         state.requests[index].technicianId = technicianId;
-        state.requests[index].status = MaintenanceStatus.IN_PROGRESS;
+        state.requests[index].status = PanicReportStatus.IN_PROGRESS;
 
         if (state.currentRequest?.id === requestId) {
           state.currentRequest.technicianId = technicianId;
-          state.currentRequest.status = MaintenanceStatus.IN_PROGRESS;
+          state.currentRequest.status = PanicReportStatus.IN_PROGRESS;
         }
       }
     },
@@ -158,12 +152,12 @@ const maintenanceSlice = createSlice({
 
       if (index !== -1) {
         state.requests[index].resolution = resolution;
-        state.requests[index].status = MaintenanceStatus.RESOLVED;
+        state.requests[index].status = PanicReportStatus.RESOLVED;
         state.requests[index].resolvedAt = new Date().toISOString();
 
         if (state.currentRequest?.id === requestId) {
           state.currentRequest.resolution = resolution;
-          state.currentRequest.status = MaintenanceStatus.RESOLVED;
+          state.currentRequest.status = PanicReportStatus.RESOLVED;
           state.currentRequest.resolvedAt = new Date().toISOString();
         }
       }
@@ -177,11 +171,11 @@ const maintenanceSlice = createSlice({
 
       if (index !== -1) {
         state.requests[index].resolution = reason;
-        state.requests[index].status = MaintenanceStatus.RETURNED_TO_SUPPLIER;
+        state.requests[index].status = PanicReportStatus.RETURNED_TO_SUPPLIER;
 
         if (state.currentRequest?.id === requestId) {
           state.currentRequest.resolution = reason;
-          state.currentRequest.status = MaintenanceStatus.RETURNED_TO_SUPPLIER;
+          state.currentRequest.status = PanicReportStatus.RETURNED_TO_SUPPLIER;
         }
       }
     },

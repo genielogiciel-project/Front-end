@@ -32,11 +32,11 @@ export enum RequestStatus {
 }
 
 // Maintenance Status
-export enum MaintenanceStatus {
-  REPORTED = "REPORTED",
+export enum PanicReportStatus {
+  OPEN = "OPEN",
   IN_PROGRESS = "IN_PROGRESS",
   RESOLVED = "RESOLVED",
-  RETURNED_TO_SUPPLIER = "RETURNED_TO_SUPPLIER",
+  CLOSED = "CLOSED",
 }
 
 // Zod schemas for validation
@@ -104,28 +104,27 @@ export type User = {
 export type Department = {
   id: string;
   name: string;
-  head: Department
+  head: Department;
 };
 
 export type Resource = {
-  id: string;
+  id: string | null;
   inventoryNumber: string;
   type: ResourceType;
   specifications: string;
-  departmentId: string;
-  assignedUserId?: string;
+  department: Department | null;
+  user: User | null;
+  supplier: Supplier | null;
   status: "AVAILABLE" | "ASSIGNED" | "MAINTENANCE" | "DISPOSED";
-  acquisitionDate: Date;
-  warrantyEndDate: Date;
-  supplierId: string;
 };
 
-export type ResourceRequest = z.infer<typeof ResourceRequestSchema> & {
+export type ResourceRequest = {
   id: string;
   status: RequestStatus;
   requestedProducts: RequestedProduct[];
   teacher: User;
   department: Department;
+  createdAt: Date;
 };
 
 export type RequestedProduct = {
@@ -133,43 +132,63 @@ export type RequestedProduct = {
   resourceType: ResourceType;
   brand: string;
   quantity: number;
-}
+};
 
-export type Tender = {
+export type CallForTender = {
   id: string;
+  requestedProducts: RequestedProduct[];
   requestId: string;
   title: string;
-  description: string;
   startDate: Date;
   endDate: Date;
-  status: "OPEN" | "CLOSED" | "AWARDED";
+  status: "OPEN" | "CLOSED";
 };
 
 export type Supplier = {
   id: string;
-  name: string;
-  contactPerson: string;
-  email: string;
-  phone: string;
+  companyName: string;
   address: string;
-  website?: string;
+  website: string;
+  managerName: string;
   isBlacklisted: boolean;
   blacklistReason?: string;
 };
 
-export type SupplierBid = z.infer<typeof SupplierBidSchema> & {
+export type PanicReport = {
   id: string;
-  supplierId: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
-  submittedAt: Date;
-};
-
-export type MaintenanceRequest = z.infer<typeof MaintenanceRequestSchema> & {
-  id: string;
-  status: MaintenanceStatus;
-  reportedById: string;
+  description: string;
   reportedAt: Date;
-  technicianId?: string;
+
+  status: PanicReportStatus;
+  teacher: User;
+  resource: Resource;
   resolution?: string;
   resolvedAt?: Date;
+};
+
+export type MaintenanceRecord = {
+  id: string;
+  details: string;
+  maintenanceDate: Date;
+  technician: User;
+  resource: Resource;
+  panicReport?: PanicReport;
+};
+
+export type Proposal = {
+  id: string;
+  deliveryDate: Date;
+  proposalProducts: ProposalProduct[];
+  totalPrice: number;
+  tender: CallForTender;
+  supplier: Supplier;
+};
+
+export type ProposalProduct = {
+  id: string;
+  resourceType: ResourceType;
+  brand: string;
+  quantity: number;
+  unitPrice: number;
+  proposal: Proposal;
 };

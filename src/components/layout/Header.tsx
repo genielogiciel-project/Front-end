@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/authSlice";
-import { UserRole } from "@/lib/types";
+import { Role } from "@/lib/types";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -39,12 +39,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
     dispatch(logout());
   };
 
-  const getRoleName = (role: UserRole[]) => {
-    if (role.includes(UserRole.DEPARTMENT_HEAD)) return "Chef de département";
-    if (role.includes(UserRole.RESOURCE_MANAGER))
+  const getRoleName = (role: Role[]) => {
+    if (role.includes(Role.DEPARTMENT_HEAD)) return "Chef de département";
+    if (role.includes(Role.RESOURCE_MANAGER))
       return "Responsable des ressources";
-    if (role.includes(UserRole.MAINTENANCE)) return "Service de maintenance";
-    if (role.includes(UserRole.SUPPLIER)) return "Fournisseur";
+    if (role.includes(Role.MAINTENANCE)) return "Service de maintenance";
+    if (role.includes(Role.SUPPLIER)) return "Fournisseur";
 
     return role;
   };

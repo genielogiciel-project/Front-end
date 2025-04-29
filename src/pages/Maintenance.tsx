@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MaintenanceStatus } from "@/lib/types";
+import { PanicReportStatus } from "@/lib/types";
 import {
   Search,
   Filter,
@@ -24,7 +24,7 @@ import {
 export default function Maintenance() {
   const { requests } = useAppSelector((state) => state.maintenance);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<MaintenanceStatus | "ALL">(
+  const [statusFilter, setStatusFilter] = useState<PanicReportStatus | "ALL">(
     "ALL"
   );
 
@@ -39,15 +39,15 @@ export default function Maintenance() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusIcon = (status: MaintenanceStatus) => {
+  const getStatusIcon = (status: PanicReportStatus) => {
     switch (status) {
-      case MaintenanceStatus.REPORTED:
+      case PanicReportStatus.REPORTED:
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case MaintenanceStatus.IN_PROGRESS:
+      case PanicReportStatus.IN_PROGRESS:
         return <Clock className="h-5 w-5 text-blue-500" />;
-      case MaintenanceStatus.RESOLVED:
+      case PanicReportStatus.RESOLVED:
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case MaintenanceStatus.RETURNED_TO_SUPPLIER:
+      case PanicReportStatus.RETURNED_TO_SUPPLIER:
         return <ArrowLeftRight className="h-5 w-5 text-purple-500" />;
       default:
         return null;
@@ -77,7 +77,7 @@ export default function Maintenance() {
         <Select
           value={statusFilter}
           onValueChange={(value) =>
-            setStatusFilter(value as MaintenanceStatus | "ALL")
+            setStatusFilter(value as PanicReportStatus | "ALL")
           }
         >
           <SelectTrigger className="w-[200px]">
@@ -86,7 +86,7 @@ export default function Maintenance() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">Tous les statuts</SelectItem>
-            {Object.values(MaintenanceStatus).map((status) => (
+            {Object.values(PanicReportStatus).map((status) => (
               <SelectItem key={status} value={status}>
                 {status}
               </SelectItem>
@@ -113,12 +113,12 @@ export default function Maintenance() {
                 </div>
                 <div
                   className={`px-3 py-1 rounded-full text-sm ${
-                    request.status === MaintenanceStatus.RESOLVED
+                    request.status === PanicReportStatus.RESOLVED
                       ? "bg-green-100 text-green-800"
-                      : request.status === MaintenanceStatus.IN_PROGRESS
+                      : request.status === PanicReportStatus.IN_PROGRESS
                         ? "bg-blue-100 text-blue-800"
                         : request.status ===
-                            MaintenanceStatus.RETURNED_TO_SUPPLIER
+                            PanicReportStatus.RETURNED_TO_SUPPLIER
                           ? "bg-purple-100 text-purple-800"
                           : "bg-yellow-100 text-yellow-800"
                   }`}
