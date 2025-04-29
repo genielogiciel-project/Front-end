@@ -13,8 +13,8 @@ import {
 } from "@/hooks/useRequestApi";
 
 export default function Requests() {
-  const { requests } = useAppSelector((state) => state.requests);
-  const { data } = useGetAllRequests();
+  // const { requests } = useAppSelector((state) => state.requests);
+  const { data: requests, isLoading } = useGetAllRequests();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "ALL">(
     "ALL"
@@ -24,12 +24,17 @@ export default function Requests() {
   const { mutate: deleteRequest } = useDeleteRequest();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredRequests = requests.filter(
-    ({ justification, id, status }) =>
-      (justification.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        id.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (statusFilter === "ALL" || status === statusFilter)
-  );
+  let filteredRequests = requests;
+  // if (!requests || requests.length === 0) {
+  //   return <p>Aucune requête trouvée.</p>;
+  // }
+  if (!isLoading) {
+    filteredRequests = requests?.filter(
+      ({ id, status }) =>
+        id.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        (statusFilter === "ALL" || status === statusFilter)
+    );
+  }
 
   const handleNewRequestSubmit = (data: any) => {
     createRequest(data);
@@ -45,6 +50,7 @@ export default function Requests() {
         onStatusChange={setStatusFilter}
       />
       <RequestList
+        isLoading={isLoading}
         requests={filteredRequests}
         onUpdate={(id, updatedData) => updateRequest({ id, ...updatedData })}
         onDelete={(id) => {

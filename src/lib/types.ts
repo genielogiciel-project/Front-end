@@ -129,9 +129,10 @@ export type ResourceRequest = {
 
 export type RequestedProduct = {
   id: string;
-  resourceType: ResourceType;
+  type: ResourceType;
   brand: string;
   quantity: number;
+  specifications: string;
 };
 
 export type CallForTender = {
