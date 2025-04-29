@@ -116,16 +116,24 @@ export default function Header({ onMenuClick }: HeaderProps) {
             >
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
+<<<<<<< HEAD
                   {user?.fullName
+=======
+                   { "a" /*user?.name
+>>>>>>> d733e3290f0194f7e50c8915c08cb14008194476
                     .split(" ")
                     .map((n) => n[0])
-                    .join("")}
+                    .join("")*/} 
                 </AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
+<<<<<<< HEAD
                 <p className="text-sm font-medium">{name || ""}</p>
+=======
+                <p className="text-sm font-medium">{"ayoub"}</p>
+>>>>>>> d733e3290f0194f7e50c8915c08cb14008194476
                 <p className="text-xs text-muted-foreground">
-                  {user?.role ? getRoleName(user.role) : ""}
+                  {user?.role ? getRoleName(user.role /** he is him  */) : ""}
                 </p>
               </div>
             </Button>
