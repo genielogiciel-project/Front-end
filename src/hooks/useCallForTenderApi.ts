@@ -8,7 +8,7 @@ export const useGetAllTenders = () => {
   return useQuery<CallForTender[]>({
     queryKey: ["tenders"],
     queryFn: async () => {
-      const { data } = await api.get("/tenders");
+      const { data } = await api.get("/call-for-tender");
       return data;
     },
   });
@@ -20,7 +20,7 @@ export const useCreateTender = () => {
 
   return useMutation({
     mutationFn: async (newTender: Omit<CallForTender, "id">) => {
-      const { data } = await api.post("/tenders", newTender);
+      const { data } = await api.post("/call-for-tender", newTender);
       return data;
     },
     onSuccess: () => {
@@ -35,7 +35,7 @@ export const useUpdateTender = () => {
 
   return useMutation({
     mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<CallForTender> }) => {
-      const { data } = await api.put(`/tenders/${id}`, updatedData);
+      const { data } = await api.put(`/call-for-tender/${id}`, updatedData);
       return data;
     },
     onSuccess: () => {
@@ -50,7 +50,7 @@ export const useDeleteTender = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.delete(`/tenders/${id}`);
+      const { data } = await api.delete(`/call-for-tender/${id}`);
       return data;
     },
     onSuccess: () => {
