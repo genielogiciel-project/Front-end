@@ -26,6 +26,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const name =
     // @ts-ignore
     user?.fullName?.charAt(0).toUpperCase() + user?.fullName?.slice(1);
+  const iconName = user?.fullName
+    ?.split(" ")
+    .map((n) => n.charAt(0))
+    .join("");
   const { notifications } = useAppSelector((state) => state.notifications);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -115,25 +119,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
               className="relative flex items-center gap-2"
             >
               <Avatar className="h-8 w-8">
-                <AvatarFallback>
-<<<<<<< HEAD
-                  {user?.fullName
-=======
-                   { "a" /*user?.name
->>>>>>> d733e3290f0194f7e50c8915c08cb14008194476
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")*/} 
-                </AvatarFallback>
+                <AvatarFallback>{iconName}</AvatarFallback>
               </Avatar>
               <div className="hidden md:block text-left">
-<<<<<<< HEAD
                 <p className="text-sm font-medium">{name || ""}</p>
-=======
-                <p className="text-sm font-medium">{"ayoub"}</p>
->>>>>>> d733e3290f0194f7e50c8915c08cb14008194476
                 <p className="text-xs text-muted-foreground">
-                  {user?.role ? getRoleName(user.role /** he is him  */) : ""}
+                  {user?.role ? getRoleName(user.role) : ""}
                 </p>
               </div>
             </Button>
