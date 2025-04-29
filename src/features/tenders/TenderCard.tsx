@@ -68,7 +68,7 @@ export function TenderCard({ tender }: TenderCardProps) {
               {(tender.requestedProducts ?? []).map((product, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                   <span>
-                    • {product.quantity}x {product.productName}
+                    {/* • {product.quantity}x {product.productName} */}
                   </span>
                 </div>
               ))}

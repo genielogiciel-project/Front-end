@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useGetResourceRequestsByStatus } from "@/hooks/useResourceApi";
+import { useGetResourceRequestsByStatus } from "@/hooks/useRequestApi";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
