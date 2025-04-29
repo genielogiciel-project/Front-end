@@ -19,25 +19,31 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ResourceType, RequestStatus } from "@/lib/types";
+import { RequestStatus, ResourceRequest, ResourceType } from "@/lib/types";
+import { useUpdateRequest } from "@/hooks/useRequestApi";
 import { useGetAllDepartments } from "@/hooks/useDepartmentApi";
 import { useToast } from "@/hooks/use-toast";
+import { useAppSelector } from "@/lib/store";
 
 interface UpdateRequestModalProps {
   open: boolean;
-  request: any;
+  request: ResourceRequest;
   onClose: () => void;
-  onSubmit: (updatedData: any) => void;
 }
 
 interface Product {
-  resourceType: ResourceType;
+  id?: string;
+  type: ResourceType;
   brand: string;
   quantity: number;
+  specifications: string;
+  status: string;
+  // Computer specific fields
   cpu?: string;
   ram?: string;
   monitor?: string;
   storage?: string;
+  // Printer specific fields
   printSpeed?: string;
   resolution?: string;
 }
@@ -46,47 +52,70 @@ export function UpdateRequestModal({
   open,
   request,
   onClose,
-  onSubmit,
 }: UpdateRequestModalProps) {
+  const { user } = useAppSelector((state) => state.auth);
   const { toast } = useToast();
   const { data: departments = [] } = useGetAllDepartments();
+  const { mutate: updateRequest, isPending } = useUpdateRequest();
 
-  const [departmentId, setDepartmentId] = useState(request.departmentId || "");
-  const [justification, setJustification] = useState(
-    request.justification || ""
+  // Parse the existing request into our form state
+  const [departmentId, setDepartmentId] = useState(request.department.id);
+  const [status, setStatus] = useState<RequestStatus>(request.status);
+  // const [justification, setJustification] = useState(
+  //   request.justification || ""
+  // );
+  const [requestedProducts, setRequestedProducts] = useState<Product[]>(
+    request.requestedProducts.map((product) => {
+      const specs = product.specifications;
+
+      return {
+        id: product.id,
+        type: product.type,
+        brand: product.brand,
+        quantity: product.quantity,
+        specifications: product.specifications,
+        ...(product.type === ResourceType.COMPUTER
+          ? {
+              //@ts-expect-error
+              cpu: specs.cpu,
+              //@ts-expect-error
+              ram: specs.ram,
+              //@ts-expect-error
+              monitor: specs.monitor,
+              //@ts-expect-error
+              storage: specs.storage,
+            }
+          : {
+              //@ts-expect-error
+              printSpeed: specs.printSpeed,
+              //@ts-expect-error
+              resolution: specs.resolution,
+            }),
+      };
+    })
   );
-  const [requestedProducts, setRequestedProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    if (request) {
-      const parsedProducts = request.items.map((item: any) => {
-        const specs =
-          typeof item.specifications === "string"
-            ? JSON.parse(item.specifications)
-            : item.specifications;
-        if (item.type === "COMPUTER") {
-          return {
-            resourceType: item.type,
-            brand: item.specifications.brand || "",
-            quantity: item.quantity,
-            cpu: specs.cpu,
-            ram: specs.ram,
-            monitor: specs.monitor,
-            storage: specs.storage,
-          };
-        } else {
-          return {
-            resourceType: item.type,
-            brand: item.specifications.brand || "",
-            quantity: item.quantity,
-            printSpeed: specs.printSpeed,
-            resolution: specs.resolution,
-          };
-        }
-      });
-      setRequestedProducts(parsedProducts);
-    }
-  }, [request]);
+  const handleAddProduct = () => {
+    setRequestedProducts([
+      ...requestedProducts,
+      {
+        type: ResourceType.COMPUTER,
+        brand: "",
+        quantity: 1,
+        specifications: "",
+        cpu: "",
+        ram: "",
+        monitor: "",
+        storage: "",
+      },
+    ]);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    const newProducts = [...requestedProducts];
+    newProducts.splice(index, 1);
+    setRequestedProducts(newProducts);
+  };
 
   const handleProductChange = (
     index: number,
@@ -96,12 +125,14 @@ export function UpdateRequestModal({
     const newProducts = [...requestedProducts];
     newProducts[index] = { ...newProducts[index], [field]: value };
 
-    if (field === "resourceType") {
-      if (value === "COMPUTER") {
+    // When resource type changes, reset the specific fields
+
+    if (field === "type") {
+      if (value === ResourceType.COMPUTER) {
         newProducts[index] = {
-          resourceType: value,
-          brand: "",
-          quantity: 1,
+          ...newProducts[index],
+          printSpeed: undefined,
+          resolution: undefined,
           cpu: "",
           ram: "",
           monitor: "",
@@ -109,9 +140,11 @@ export function UpdateRequestModal({
         };
       } else {
         newProducts[index] = {
-          resourceType: value,
-          brand: "",
-          quantity: 1,
+          ...newProducts[index],
+          cpu: undefined,
+          ram: undefined,
+          monitor: undefined,
+          storage: undefined,
           printSpeed: "",
           resolution: "",
         };
@@ -140,10 +173,11 @@ export function UpdateRequestModal({
       return;
     }
 
+    // Validate computer fields if computer is selected
     if (
       requestedProducts.some(
         (p) =>
-          p.resourceType === "COMPUTER" &&
+          p.type === ResourceType.COMPUTER &&
           (!p.cpu || !p.ram || !p.monitor || !p.storage)
       )
     ) {
@@ -155,9 +189,11 @@ export function UpdateRequestModal({
       return;
     }
 
+    // Validate printer fields if printer is selected
     if (
       requestedProducts.some(
-        (p) => p.resourceType === "PRINTER" && (!p.printSpeed || !p.resolution)
+        (p) =>
+          p.type === ResourceType.PRINTER && (!p.printSpeed || !p.resolution)
       )
     ) {
       toast({
@@ -168,12 +204,17 @@ export function UpdateRequestModal({
       return;
     }
 
-    const updatedData = {
-      department: { id: departmentId },
+    // Prepare the request data with stringified specifications
+    const requestData = {
+      id: request.id,
+      department: {
+        id: departmentId,
+      },
       requestedProducts: requestedProducts.map((product) => {
-        if (product.resourceType === "COMPUTER") {
+        if (product.type === ResourceType.COMPUTER) {
           return {
-            type: product.resourceType,
+            id: product.id,
+            type: product.type,
             brand: product.brand,
             quantity: product.quantity,
             specifications: JSON.stringify({
@@ -185,7 +226,8 @@ export function UpdateRequestModal({
           };
         } else {
           return {
-            type: product.resourceType,
+            id: product.id,
+            type: product.type,
             brand: product.brand,
             quantity: product.quantity,
             specifications: JSON.stringify({
@@ -195,14 +237,34 @@ export function UpdateRequestModal({
           };
         }
       }),
-      justification,
+      // justification: justification || undefined,
+      status,
+      createdAt: request.createdAt,
+      teacher: {
+        id: user?.id,
+      },
     };
 
-    onSubmit(updatedData);
-    toast({
-      title: "Succès",
-      description: "Demande mise à jour avec succès",
-    });
+    updateRequest(
+      { id: request.id, updatedData: requestData },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Succès",
+            description: "La demande a été mise à jour avec succès",
+          });
+          onClose();
+        },
+        onError: () => {
+          toast({
+            title: "Erreur",
+            description:
+              "Une erreur est survenue lors de la mise à jour de la demande",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -211,7 +273,7 @@ export function UpdateRequestModal({
         <DialogHeader className="row-start-1">
           <DialogTitle>Modifier la Demande</DialogTitle>
           <DialogDescription>
-            Modifiez les informations de votre demande.
+            Mettez à jour les informations de votre demande de ressources.
           </DialogDescription>
         </DialogHeader>
 
@@ -221,7 +283,11 @@ export function UpdateRequestModal({
               <label htmlFor="department" className="text-right">
                 Département
               </label>
-              <Select value={departmentId} onValueChange={setDepartmentId}>
+              <Select
+                value={departmentId}
+                onValueChange={setDepartmentId}
+                disabled={isPending}
+              >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Sélectionnez un département" />
                 </SelectTrigger>
@@ -236,32 +302,68 @@ export function UpdateRequestModal({
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
+              <label htmlFor="status" className="text-right">
+                Statut
+              </label>
+              <Select
+                value={status}
+                onValueChange={(value) => setStatus(value as RequestStatus)}
+                disabled={isPending}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Sélectionnez un statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={RequestStatus.SUBMITTED}>
+                    Soumis
+                  </SelectItem>
+                  <SelectItem value={RequestStatus.VALIDATED}>
+                    Validé
+                  </SelectItem>
+                  <SelectItem value={RequestStatus.REJECTED}>Rejeté</SelectItem>
+                  <SelectItem value={RequestStatus.SENT}>Envoyé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="justification" className="text-right">
-                Justification
+                Justification (Optionnel)
               </label>
               <Textarea
                 id="justification"
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
+                placeholder="Expliquez la raison de la demande"
                 className="col-span-3"
+                disabled={isPending}
               />
-            </div>
+            </div> */}
 
-            {/* Products Section */}
             <div className="space-y-4">
               <h4 className="text-sm font-medium">Produits Demandés</h4>
               {requestedProducts.map((product, index) => (
                 <div key={index} className="grid gap-4 border p-4 rounded-lg">
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <label className="text-right">Type</label>
+                    <label
+                      htmlFor={`resourceType-${index}`}
+                      className="text-right"
+                    >
+                      Type de Ressource
+                    </label>
                     <Select
-                      value={product.resourceType}
+                      value={product.type}
                       onValueChange={(value) =>
-                        handleProductChange(index, "resourceType", value)
+                        handleProductChange(
+                          index,
+                          "type",
+                          value as ResourceType
+                        )
                       }
+                      disabled={isPending}
                     >
                       <SelectTrigger className="col-span-3">
-                        <SelectValue />
+                        <SelectValue placeholder="Choisir type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="COMPUTER">Ordinateur</SelectItem>
@@ -271,19 +373,27 @@ export function UpdateRequestModal({
                   </div>
 
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <label className="text-right">Marque</label>
+                    <label htmlFor={`brand-${index}`} className="text-right">
+                      Marque
+                    </label>
                     <Input
+                      id={`brand-${index}`}
                       value={product.brand}
                       onChange={(e) =>
                         handleProductChange(index, "brand", e.target.value)
                       }
+                      placeholder="Marque du produit"
                       className="col-span-3"
+                      disabled={isPending}
                     />
                   </div>
 
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <label className="text-right">Quantité</label>
+                    <label htmlFor={`quantity-${index}`} className="text-right">
+                      Quantité
+                    </label>
                     <Input
+                      id={`quantity-${index}`}
                       type="number"
                       value={product.quantity}
                       onChange={(e) =>
@@ -295,71 +405,177 @@ export function UpdateRequestModal({
                       }
                       min={1}
                       className="col-span-3"
+                      disabled={isPending}
                     />
                   </div>
 
-                  {product.resourceType === "COMPUTER" && (
+                  {product.type === "COMPUTER" && (
                     <>
-                      {["cpu", "ram", "monitor", "storage"].map((field) => (
-                        <div
-                          key={field}
-                          className="grid grid-cols-4 items-center gap-4"
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label htmlFor={`cpu-${index}`} className="text-right">
+                          CPU
+                        </label>
+                        <Input
+                          id={`cpu-${index}`}
+                          value={product.cpu || ""}
+                          onChange={(e) =>
+                            handleProductChange(index, "cpu", e.target.value)
+                          }
+                          placeholder="Ex: Intel Core i7"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label htmlFor={`ram-${index}`} className="text-right">
+                          RAM
+                        </label>
+                        <Input
+                          id={`ram-${index}`}
+                          value={product.ram || ""}
+                          onChange={(e) =>
+                            handleProductChange(index, "ram", e.target.value)
+                          }
+                          placeholder="Ex: 16GB DDR4"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor={`monitor-${index}`}
+                          className="text-right"
                         >
-                          <label className="text-right capitalize">
-                            {field}
-                          </label>
-                          <Input
-                            value={(product as any)[field] || ""}
-                            onChange={(e) =>
-                              handleProductChange(
-                                index,
-                                field as keyof Product,
-                                e.target.value
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                      ))}
+                          Moniteur
+                        </label>
+                        <Input
+                          id={`monitor-${index}`}
+                          value={product.monitor || ""}
+                          onChange={(e) =>
+                            handleProductChange(
+                              index,
+                              "monitor",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Ex: 24\' FHD"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor={`storage-${index}`}
+                          className="text-right"
+                        >
+                          Stockage
+                        </label>
+                        <Input
+                          id={`storage-${index}`}
+                          value={product.storage || ""}
+                          onChange={(e) =>
+                            handleProductChange(
+                              index,
+                              "storage",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Ex: 512GB SSD"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
                     </>
                   )}
 
-                  {product.resourceType === "PRINTER" && (
+                  {product.type === "PRINTER" && (
                     <>
-                      {["printSpeed", "resolution"].map((field) => (
-                        <div
-                          key={field}
-                          className="grid grid-cols-4 items-center gap-4"
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor={`printSpeed-${index}`}
+                          className="text-right"
                         >
-                          <label className="text-right capitalize">
-                            {field}
-                          </label>
-                          <Input
-                            value={(product as any)[field] || ""}
-                            onChange={(e) =>
-                              handleProductChange(
-                                index,
-                                field as keyof Product,
-                                e.target.value
-                              )
-                            }
-                            className="col-span-3"
-                          />
-                        </div>
-                      ))}
+                          Vitesse d'impression
+                        </label>
+                        <Input
+                          id={`printSpeed-${index}`}
+                          value={product.printSpeed || ""}
+                          onChange={(e) =>
+                            handleProductChange(
+                              index,
+                              "printSpeed",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Ex: 30 ppm"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <label
+                          htmlFor={`resolution-${index}`}
+                          className="text-right"
+                        >
+                          Résolution
+                        </label>
+                        <Input
+                          id={`resolution-${index}`}
+                          value={product.resolution || ""}
+                          onChange={(e) =>
+                            handleProductChange(
+                              index,
+                              "resolution",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Ex: 1200x1200 dpi"
+                          className="col-span-3"
+                          disabled={isPending}
+                        />
+                      </div>
                     </>
+                  )}
+
+                  {requestedProducts.length > 1 && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleRemoveProduct(index)}
+                        disabled={isPending}
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
                   )}
                 </div>
               ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddProduct}
+                className="w-full"
+                disabled={isPending}
+              >
+                Ajouter un autre produit
+              </Button>
             </div>
           </div>
         </div>
 
         <DialogFooter className="row-start-3">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
             Annuler
           </Button>
-          <Button onClick={handleSubmit}>Mettre à jour</Button>
+          <Button onClick={handleSubmit} disabled={isPending}>
+            {isPending ? "Mise à jour..." : "Mettre à jour"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -9,13 +9,33 @@ export const useGetAllRequests = () => {
     queryKey: ["requests"],
     queryFn: async () => {
       try {
-        const { data } = await api.get("/resource-request");
-        console.log(data);
+        let { data } = (await api.get("/resource-request")) as {
+          data: ResourceRequest[];
+        };
+        data.forEach((request) => {
+          request.requestedProducts.forEach((product) => {
+            product.specifications = JSON.parse(product.specifications);
+          });
+        });
         return data;
       } catch (error) {
         console.error("Error fetching requests:", error);
         throw error; // Rethrow the error to trigger the error state in the query
       }
+    },
+  });
+};
+
+export const useGetResourceRequestsByStatus = (
+  status: "SENT" | "SUBMITTED"
+) => {
+  const api = useAPI();
+
+  return useQuery({
+    queryKey: ["requests", status],
+    queryFn: async () => {
+      const { data } = await api.get(`/resource-request/by-status/${status}`);
+      return data;
     },
   });
 };
