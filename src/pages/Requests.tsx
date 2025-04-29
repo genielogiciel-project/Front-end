@@ -1,27 +1,38 @@
-import { useState } from 'react';
-import { useAppSelector } from '@/lib/store';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RequestStatus, ResourceType } from '@/lib/types';
-import { FileText, Plus, Search, Filter } from 'lucide-react';
-import { NewRequestModal } from '@/features/requests/newRequestModal';
+import { useState } from "react";
+import { useAppSelector } from "@/lib/store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RequestStatus, ResourceType } from "@/lib/types";
+import { FileText, Plus, Search, Filter } from "lucide-react";
+import { NewRequestModal } from "@/features/requests/newRequestModal";
+import { useGetAllRequests } from "@/hooks/useRequestApi";
 
 export default function Requests() {
   const { requests } = useAppSelector((state) => state.requests);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<RequestStatus | 'ALL'>('ALL');
+  const { data } = useGetAllRequests();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | "ALL">(
+    "ALL"
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredRequests = requests.filter(({ justification, id, status }) =>
-    (justification.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    id.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (statusFilter === 'ALL' || status === statusFilter)
+  const filteredRequests = requests.filter(
+    ({ justification, id, status }) =>
+      (justification.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        id.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (statusFilter === "ALL" || status === statusFilter)
   );
 
   const handleNewRequestSubmit = (data: any) => {
-    console.log('New request submitted:', data);
+    console.log("New request submitted:", data);
     // TODO: Replace with API call or Redux action
   };
 
@@ -70,8 +81,8 @@ function FilterBar({
 }: {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  statusFilter: RequestStatus | 'ALL';
-  onStatusChange: (value: RequestStatus | 'ALL') => void;
+  statusFilter: RequestStatus | "ALL";
+  onStatusChange: (value: RequestStatus | "ALL") => void;
 }) {
   return (
     <div className="flex gap-4 items-center">
@@ -84,7 +95,12 @@ function FilterBar({
           className="pl-8"
         />
       </div>
-      <Select value={statusFilter} onValueChange={(value) => onStatusChange(value as RequestStatus | 'ALL')}>
+      <Select
+        value={statusFilter}
+        onValueChange={(value) =>
+          onStatusChange(value as RequestStatus | "ALL")
+        }
+      >
         <SelectTrigger className="w-[200px]">
           <Filter className="mr-2 h-4 w-4" />
           <SelectValue placeholder="Filtrer par statut" />
@@ -111,7 +127,9 @@ function RequestList({ requests }: { requests: any[] }) {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-xl">Demande #{request.id}</CardTitle>
-                <p className="text-sm text-muted-foreground">Département: {request.departmentId}</p>
+                <p className="text-sm text-muted-foreground">
+                  Département: {request.departmentId}
+                </p>
               </div>
               <StatusBadge status={request.status} />
             </div>
@@ -127,13 +145,15 @@ function RequestList({ requests }: { requests: any[] }) {
 
 function StatusBadge({ status }: { status: RequestStatus }) {
   const statusClasses = {
-    APPROVED: 'bg-green-100 text-green-800',
-    REJECTED: 'bg-red-100 text-red-800',
-    PENDING: 'bg-yellow-100 text-yellow-800',
+    APPROVED: "bg-green-100 text-green-800",
+    REJECTED: "bg-red-100 text-red-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
   };
 
   return (
-    <div className={`px-3 py-1 rounded-full text-sm ${statusClasses[status] || ''}`}>
+    <div
+      className={`px-3 py-1 rounded-full text-sm ${statusClasses[status] || ""}`}
+    >
       {status}
     </div>
   );
@@ -149,7 +169,11 @@ function RequestDetails({ request }: { request: any }) {
             <div key={index} className="flex items-center gap-2 text-sm">
               <FileText className="h-4 w-4" />
               <span>
-                {item.quantity}x {item.type === ResourceType.COMPUTER ? 'Ordinateur' : 'Imprimante'} -{' '}
+                {item.quantity}x{" "}
+                {item.type === ResourceType.COMPUTER
+                  ? "Ordinateur"
+                  : "Imprimante"}{" "}
+                -{" "}
                 {item.type === ResourceType.COMPUTER
                   ? `${item.specifications.brand} ${item.specifications.cpu}`
                   : `${item.specifications.brand} ${item.specifications.resolution}`}
@@ -166,7 +190,9 @@ function RequestDetails({ request }: { request: any }) {
 
       <div className="flex justify-between items-center text-sm text-muted-foreground">
         <span>Créé le: {new Date(request.createdAt).toLocaleDateString()}</span>
-        <span>Mis à jour le: {new Date(request.updatedAt).toLocaleDateString()}</span>
+        <span>
+          Mis à jour le: {new Date(request.updatedAt).toLocaleDateString()}
+        </span>
       </div>
     </div>
   );

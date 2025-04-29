@@ -21,18 +21,14 @@ export enum UserRole {
 export enum ResourceType {
   COMPUTER = "COMPUTER",
   PRINTER = "PRINTER",
-  OTHER = "OTHER",
 }
 
 // Request Status
 export enum RequestStatus {
-  DRAFT = "DRAFT",
   SUBMITTED = "SUBMITTED",
-  APPROVED = "APPROVED",
-  TENDER_CREATED = "TENDER_CREATED",
-  SUPPLIER_SELECTED = "SUPPLIER_SELECTED",
-  DELIVERED = "DELIVERED",
+  VALIDATED = "VALIDATED",
   REJECTED = "REJECTED",
+  SENT = "SENT",
 }
 
 // Maintenance Status
@@ -108,14 +104,14 @@ export type User = {
 export type Department = {
   id: string;
   name: string;
-  headId: string;
+  head: Department
 };
 
 export type Resource = {
   id: string;
   inventoryNumber: string;
   type: ResourceType;
-  specifications: Record<string, any>;
+  specifications: string;
   departmentId: string;
   assignedUserId?: string;
   status: "AVAILABLE" | "ASSIGNED" | "MAINTENANCE" | "DISPOSED";
@@ -127,10 +123,17 @@ export type Resource = {
 export type ResourceRequest = z.infer<typeof ResourceRequestSchema> & {
   id: string;
   status: RequestStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  createdById: string;
+  requestedProducts: RequestedProduct[];
+  teacher: User;
+  department: Department;
 };
+
+export type RequestedProduct = {
+  id: string;
+  resourceType: ResourceType;
+  brand: string;
+  quantity: number;
+}
 
 export type Tender = {
   id: string;

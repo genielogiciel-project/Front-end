@@ -19,7 +19,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useGetAllRequests } from "@/hooks/useRequestApi";
 
 interface NewRequestModalProps {
   open: boolean;
@@ -45,10 +44,7 @@ export function NewRequestModal({
     "COMPUTER"
   );
   const [quantity, setQuantity] = useState(1);
-  const { data } = useGetAllRequests();
-
-  console.log("All Requests Data:", data); // Log the fetched data
-
+  
   const handleSubmit = () => {
     const data: NewRequestData = {
       departmentId,

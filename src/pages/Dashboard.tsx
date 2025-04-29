@@ -59,7 +59,7 @@ export default function Dashboard() {
     (r) => r.status === RequestStatus.SUBMITTED
   ).length;
   const approvedRequests = requests.filter(
-    (r) => r.status === RequestStatus.APPROVED
+    (r) => r.status === RequestStatus.VALIDATED
   ).length;
 
   const totalMaintenanceRequests = maintenanceRequests.length;
@@ -112,8 +112,7 @@ export default function Dashboard() {
     },
     {
       name: "Livré",
-      value: requests.filter((r) => r.status === RequestStatus.DELIVERED)
-        .length,
+      value: requests.filter((r) => r.status === RequestStatus.SENT).length,
       color: "#10b981",
     },
     {
