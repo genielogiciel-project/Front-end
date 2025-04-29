@@ -1,4 +1,5 @@
 import { useAPI } from "@/api";
+import { ResourceRequest } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllRequests = () => {
@@ -23,7 +24,7 @@ export const useCreateRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newRequest: any) => {
+    mutationFn: async (newRequest: ResourceRequest) => {
       try {
         const { data } = await api.post("/resource-request", newRequest);
         return data;
@@ -48,7 +49,7 @@ export const useUpdateRequest = () => {
       updatedData,
     }: {
       id: string;
-      updatedData: any;
+      updatedData: ResourceRequest;
     }) => {
       try {
         const { data } = await api.patch(
