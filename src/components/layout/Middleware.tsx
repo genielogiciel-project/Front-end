@@ -8,7 +8,6 @@ import { useAuth } from "@/auth/useAuth";
 
 export function Middleware() {
   const { user, isAuthenticated } = useAuth();
-  console.log({ user, isAuthenticated });
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -18,9 +17,9 @@ export function Middleware() {
     }
   }, [isAuthenticated, navigate]);
 
-  // if (!isAuthenticated || !user) {
-  //   return null;
-  // }
+  if (!isAuthenticated || !user) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen bg-background">

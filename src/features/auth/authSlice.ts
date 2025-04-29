@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { User, UserRole } from "@/lib/types";
+import { User } from "@/lib/types";
 import { auth } from "@/api/api";
 
 interface AuthState {
@@ -105,7 +105,6 @@ const authSlice = createSlice({
         state.error = (action.payload as string) || "Login failed";
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
-        console.log(action.payload);
         state.user = action.payload.user;
         state.token = action.payload.accessToken;
         state.isAuthenticated = true;
