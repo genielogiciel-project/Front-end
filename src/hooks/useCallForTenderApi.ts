@@ -14,6 +14,7 @@ export const useGetAllTenders = () => {
   });
 };
 
+
 export const useCreateTender = () => {
   const api = useAPI();
   const queryClient = useQueryClient();

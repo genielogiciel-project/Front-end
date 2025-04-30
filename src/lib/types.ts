@@ -152,7 +152,7 @@ export type CallForTender = {
   title: string;
   startDate: Date;
   endDate: Date;
-  status: "OPEN" | "CLOSED";
+  open : boolean;
 };
 
 export type Supplier = User & {
