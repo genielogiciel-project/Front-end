@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/authSlice";
 import { UserRole } from "@/lib/types";
+import { useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -22,6 +23,7 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
   // @ts-ignore
   const name =
     // @ts-ignore
@@ -30,10 +32,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
     ?.split(" ")
     .map((n) => n.charAt(0))
     .join("");
-  const { notifications } = useAppSelector((state) => state.notifications);
+  // const { notifications } = useAppSelector((state) => state.notifications);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const unreadNotifications = notifications.filter((n) => !n.read).length;
+  const unreadNotifications = notifications?.filter((n) => !n.seen)?.length;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -86,18 +88,18 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {notifications.length > 0 ? (
-              notifications.slice(0, 5).map((notification) => (
+            {notifications?.length > 0 ? (
+              notifications?.slice(0, 5).map((notification) => (
                 <DropdownMenuItem
                   key={notification.id}
                   className="cursor-pointer"
                 >
                   <div
-                    className={`${notification.read ? "opacity-50" : "font-medium"}`}
+                    className={`${notification.seen ? "opacity-50" : "font-medium"}`}
                   >
                     <p>{notification.message}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(notification.timestamp).toLocaleString()}
+                      {new Date(notification.sentDate).toLocaleString()}
                     </p>
                   </div>
                 </DropdownMenuItem>

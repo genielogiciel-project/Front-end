@@ -205,3 +205,12 @@ export type ProposalProduct = {
   unitPrice: number;
   proposal: Proposal;
 };
+
+export type Notification = {
+  id: string;
+  message: string;
+  sentDate: string;
+  seen: boolean;
+  to: UserRole;
+  user: User;
+}
