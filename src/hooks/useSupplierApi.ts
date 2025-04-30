@@ -8,7 +8,7 @@ export const useGetAllSuppliers = () => {
   return useQuery<Supplier[]>({
     queryKey: ["suppliers"],
     queryFn: async () => {
-      const { data } = await api.get("/suppliers");
+      const { data } = await api.get("/supplier");
       return data;
     },
   });
@@ -20,7 +20,7 @@ export const useCreateSupplier = () => {
 
   return useMutation({
     mutationFn: async (newSupplier: Omit<Supplier, "id">) => {
-      const { data } = await api.post("/suppliers", newSupplier);
+      const { data } = await api.post("/supplier", newSupplier);
       return data;
     },
     onSuccess: () => {
@@ -35,7 +35,7 @@ export const useUpdateSupplier = () => {
 
   return useMutation({
     mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<Supplier> }) => {
-      const { data } = await api.put(`/suppliers/${id}`, updatedData);
+      const { data } = await api.put(`/supplier/${id}`, updatedData);
       return data;
     },
     onSuccess: () => {
@@ -50,7 +50,7 @@ export const useDeleteSupplier = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.delete(`/suppliers/${id}`);
+      const { data } = await api.delete(`/supplier/${id}`);
       return data;
     },
     onSuccess: () => {

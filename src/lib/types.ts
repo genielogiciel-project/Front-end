@@ -111,12 +111,22 @@ export type Resource = {
   id: string | null;
   inventoryNumber: string;
   type: ResourceType;
+  brand: string;
   specifications: string;
   department: Department | null;
   user: User | null;
   supplier: Supplier | null;
-  status: "AVAILABLE" | "ASSIGNED" | "MAINTENANCE" | "DISPOSED";
+  status: ResourceStatus;
+  acquisitionDate: Date;
+  warrantyEndDate: Date;
 };
+
+export enum ResourceStatus {
+  AVAILABLE = "AVAILABLE",
+  ASSIGNED = "ASSIGNED",
+  MAINTENANCE = "MAINTENANCE",
+  DISPOSED = "DISPOSED",
+}
 
 export type ResourceRequest = {
   id: string;
@@ -145,13 +155,13 @@ export type CallForTender = {
   status: "OPEN" | "CLOSED";
 };
 
-export type Supplier = {
+export type Supplier = User & {
   id: string;
   companyName: string;
   address: string;
   website: string;
   managerName: string;
-  isBlacklisted: boolean;
+  blacklisted: boolean;
   blacklistReason?: string;
 };
 

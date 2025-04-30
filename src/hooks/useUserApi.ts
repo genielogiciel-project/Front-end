@@ -1,5 +1,5 @@
 import { useAPI } from "@/api";
-import { User, UserRole } from "@/lib/types";
+import { User } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllUsers = () => {
@@ -8,11 +8,23 @@ export const useGetAllUsers = () => {
   return useQuery<User[]>({
     queryKey: ["users"],
     queryFn: async () => {
-      const { data } = await api.get("/users");
+      const { data } = await api.get("/user");
       return data;
     },
   });
 };
+
+export const useGetAllTeachers = () => {
+  const api = useAPI();
+
+  return useQuery<User[]>({
+    queryKey: ["teachers"],
+    queryFn: async () => {
+      const { data } = await api.get("/user/teachers");
+      return data;
+    },
+  });
+}
 
 export const useCreateUser = () => {
   const api = useAPI();
@@ -20,7 +32,7 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: async (newUser: Omit<User, "id">) => {
-      const { data } = await api.post("/users", newUser);
+      const { data } = await api.post("/user", newUser);
       return data;
     },
     onSuccess: () => {
@@ -35,7 +47,7 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<User> }) => {
-      const { data } = await api.put(`/users/${id}`, updatedData);
+      const { data } = await api.put(`/user/${id}`, updatedData);
       return data;
     },
     onSuccess: () => {
@@ -50,7 +62,7 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.delete(`/users/${id}`);
+      const { data } = await api.delete(`/user/${id}`);
       return data;
     },
     onSuccess: () => {
