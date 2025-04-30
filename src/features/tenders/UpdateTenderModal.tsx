@@ -12,11 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { CallForTender, RequestedProduct } from "@/lib/types";
 
 interface UpdateTenderModalProps {
-  tender: any;
+  tender: CallForTender | null;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: Partial<CallForTender>) => void;
 }
 
 export function UpdateTenderModal({
@@ -25,46 +26,38 @@ export function UpdateTenderModal({
   onSubmit,
 }: UpdateTenderModalProps) {
   const { toast } = useToast();
-
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [openStatus, setOpenStatus] = useState(true);
 
   useEffect(() => {
     if (tender) {
-      setTitle(tender.title || "");
-      setDescription(tender.description || "");
-      setStartDate(tender.startDate ? tender.startDate.slice(0, 10) : "");
-      setEndDate(tender.endDate ? tender.endDate.slice(0, 10) : "");
-      setOpenStatus(tender.open ?? true);
+      setTitle(tender.title);
+      setStartDate(tender.startDate.toISOString().split('T')[0]);
+      setEndDate(tender.endDate.toISOString().split('T')[0]);
+      setOpenStatus(tender.open);
     }
   }, [tender]);
 
   const handleSubmit = () => {
-    if (!title || !description || !startDate || !endDate) {
+    if (!title || !startDate || !endDate) {
       toast({
         title: "Erreur",
-        description: "Veuillez remplir tous les champs.",
+        description: "Veuillez remplir tous les champs obligatoires.",
         variant: "destructive",
       });
       return;
     }
 
-    const updatedData = {
+    const updatedData: Partial<CallForTender> = {
       title,
-      description,
-      startDate,
-      endDate,
-      open: openStatus,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      open: openStatus
     };
 
     onSubmit(updatedData);
-    toast({
-      title: "Succès",
-      description: "Appel d'offre mis à jour avec succès !",
-    });
   };
 
   return (
@@ -83,28 +76,49 @@ export function UpdateTenderModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
-          <Input
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              type="date"
+              placeholder="Date de début"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <Input
+              type="date"
+              placeholder="Date de fin"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
+          </div>
+
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
+              id="openStatus"
               checked={openStatus}
-              onChange={() => setOpenStatus(!openStatus)}
+              onChange={(e) => setOpenStatus(e.target.checked)}
+              className="h-4 w-4"
             />
-            <label>Ouvert</label>
+            <label htmlFor="openStatus">Appel d'offre ouvert</label>
+          </div>
+
+          <div>
+            <h4 className="font-medium mb-2">Produits inclus:</h4>
+            <div className="space-y-2">
+              {tender?.requestedProducts.map(product => (
+                <div key={product.id} className="text-sm border rounded p-3">
+                  <p className="font-medium">
+                    {product.quantity}x {product.type} ({product.brand})
+                  </p>
+                  {product.specifications && (
+                    <p className="text-muted-foreground mt-1">
+                      {product.specifications}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -9,27 +9,14 @@ interface TenderCardProps {
 }
 
 export function TenderCard({ tender }: TenderCardProps) {
-  const getStatusIcon = (open: true | false) => {
-    switch (status) {
-      case "OPEN":
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      case "CLOSED":
-        return <Ban className="h-5 w-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
-
-  // Helper function to parse specifications
-  const parseSpecs = (spec: string) => {
+  const parseSpecifications = (specs: string) => {
     try {
-      return JSON.parse(spec);
+      return JSON.parse(specs);
     } catch {
       return {};
     }
   };
 
-  // Determine status based on open flag and dates
   const getStatus = () => {
     if (!tender.open) return "CLOSED";
     const now = new Date();
@@ -44,14 +31,15 @@ export function TenderCard({ tender }: TenderCardProps) {
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
-            {getStatusIcon(status)}
+            {status === "OPEN" ? (
+              <Clock className="h-5 w-5 text-blue-500" />
+            ) : (
+              <Ban className="h-5 w-5 text-red-500" />
+            )}
             <div>
-              <CardTitle className="text-xl">
-                {tender.title ||
-                  `Appel d'offre ${tender.requestId || tender.id}`}
-              </CardTitle>
+              <CardTitle className="text-xl">{tender.title}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Référence: {tender.requestId || tender.id}
+                Référence: {tender.title}
               </p>
             </div>
           </div>
@@ -62,7 +50,7 @@ export function TenderCard({ tender }: TenderCardProps) {
                 : "bg-red-100 text-red-800"
             }`}
           >
-            {status}
+            {status === "OPEN" ? "EN COURS" : "CLÔTURÉ"}
           </div>
         </div>
       </CardHeader>
@@ -87,8 +75,8 @@ export function TenderCard({ tender }: TenderCardProps) {
           <div>
             <h4 className="font-medium mb-2">Produits demandés:</h4>
             <div className="space-y-3">
-              {(tender.requestedProducts ?? []).map((product, index) => {
-                const specs = parseSpecs(product.specifications || "{}");
+              {tender.requestedProducts.map((product, index) => {
+                const specs = parseSpecifications(product.specifications);
 
                 return (
                   <div key={index} className="text-sm border rounded p-3">
@@ -98,33 +86,24 @@ export function TenderCard({ tender }: TenderCardProps) {
 
                     {product.type === "COMPUTER" && (
                       <ul className="mt-1 pl-4 list-disc text-muted-foreground">
-                        {specs.cpu && <li>CPU: {specs.cpu}</li>}
-                        {specs.ram && <li>RAM: {specs.ram}</li>}
-                        {specs.storage && <li>Stockage: {specs.storage}</li>}
-                        {specs.monitor && <li>Écran: {specs.monitor}</li>}
+                        <li>CPU: {specs.cpu || "Non spécifié"}</li>
+                        <li>RAM: {specs.ram || "Non spécifié"}</li>
+                        <li>Stockage: {specs.storage || "Non spécifié"}</li>
+                        <li>Écran: {specs.monitor || "Non spécifié"}</li>
                       </ul>
                     )}
 
                     {product.type === "PRINTER" && (
                       <ul className="mt-1 pl-4 list-disc text-muted-foreground">
-                        {specs.printSpeed && (
-                          <li>Vitesse: {specs.printSpeed}</li>
-                        )}
-                        {specs.resolution && (
-                          <li>Résolution: {specs.resolution}</li>
-                        )}
+                        <li>Vitesse: {specs.printSpeed || "Non spécifié"}</li>
+                        <li>
+                          Résolution: {specs.resolution || "Non spécifié"}
+                        </li>
                       </ul>
                     )}
                   </div>
                 );
               })}
-
-              {(!tender.requestedProducts ||
-                tender.requestedProducts.length === 0) && (
-                <p className="text-sm text-muted-foreground">
-                  Aucun produit demandé.
-                </p>
-              )}
             </div>
           </div>
         </div>

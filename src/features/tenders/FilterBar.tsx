@@ -11,8 +11,8 @@ import { Search, Filter } from "lucide-react";
 interface FilterBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  statusFilter: string;
-  onStatusChange: (value: string) => void;
+  statusFilter: "ALL" | "OPEN" | "CLOSED";
+  onStatusChange: (value: "ALL" | "OPEN" | "CLOSED") => void;
 }
 
 export function FilterBar({
@@ -32,7 +32,12 @@ export function FilterBar({
           className="pl-8"
         />
       </div>
-      <Select value={statusFilter} onValueChange={onStatusChange}>
+      <Select
+        value={statusFilter}
+        onValueChange={(value: "ALL" | "OPEN" | "CLOSED") =>
+          onStatusChange(value)
+        }
+      >
         <SelectTrigger className="w-[200px]">
           <Filter className="mr-2 h-4 w-4" />
           <SelectValue placeholder="Filtrer par statut" />
@@ -41,7 +46,6 @@ export function FilterBar({
           <SelectItem value="ALL">Tous les statuts</SelectItem>
           <SelectItem value="OPEN">En cours</SelectItem>
           <SelectItem value="CLOSED">Clôturé</SelectItem>
-          <SelectItem value="AWARDED">Attribué</SelectItem>
         </SelectContent>
       </Select>
     </div>

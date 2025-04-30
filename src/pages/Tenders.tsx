@@ -4,20 +4,24 @@ import { useState } from "react";
 import { Header } from "@/features/tenders/tendersHeader";
 import { TenderCard } from "@/features/tenders/TenderCard";
 import { NewTenderModal } from "@/features/tenders/NewTenderModal";
-import { CallForTender } from "@/lib/types";
-import { useGetAllTenders } from "@/hooks/useCallForTenderApi";
+import { CallForTender, RequestStatus } from "@/lib/types";
+import { useCreateTender, useGetAllTenders } from "@/hooks/useCallForTenderApi";
 import { useToast } from "@/hooks/use-toast";
+import { useGetAllProductsByRequestStatus as useGetAllProductsByRequestsStatus } from "@/hooks/useRequestApi";
 
 export default function Tenders() {
   const { toast } = useToast();
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
-  const { data: tenders = [], isLoading, refetch } = useGetAllTenders();
+  const { data: tenders = [], isLoading } = useGetAllTenders();
+  const { data: validatedProducts = [] } = useGetAllProductsByRequestsStatus(
+    RequestStatus.VALIDATED
+  );
+  const { mutate: createTender } = useCreateTender();
 
   const handleCreateTender = async (data: Omit<CallForTender, "id">) => {
     try {
-      // The actual creation is handled in NewTenderModal via useCreateTender
-      // We just need to refetch the list after creation
-      await refetch();
+      console.log(data)
+      createTender(data);
       setIsNewModalOpen(false);
       toast({
         title: "Succès",
@@ -49,6 +53,7 @@ export default function Tenders() {
       )}
 
       <NewTenderModal
+        availableProducts={validatedProducts}
         open={isNewModalOpen}
         onClose={() => setIsNewModalOpen(false)}
         onSubmit={handleCreateTender}

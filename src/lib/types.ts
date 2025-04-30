@@ -147,12 +147,12 @@ export type RequestedProduct = {
 
 export type CallForTender = {
   id: string;
-  requestedProducts: RequestedProduct[];
-  requestId: string;
   title: string;
+  requestedProducts: RequestedProduct[];
   startDate: Date;
   endDate: Date;
-  open : boolean;
+  open: boolean;
+  resourceManager: User;
 };
 
 export type Supplier = User & {

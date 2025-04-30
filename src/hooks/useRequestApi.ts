@@ -1,5 +1,5 @@
 import { useAPI } from "@/api";
-import { ResourceRequest } from "@/lib/types";
+import { RequestedProduct, ResourceRequest } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllRequests = () => {
@@ -26,19 +26,25 @@ export const useGetAllRequests = () => {
   });
 };
 
-export function useGetResourceRequestsByStatus(status: string) {
+export function useGetAllProductsByRequestStatus(status: string) {
   const api = useAPI();
 
   return useQuery({
     queryKey: ["resourceRequests", status],
     queryFn: async () => {
-      const { data } = await api.get(`/resource-request/by-status/${status}`);
+      const { data } = (await api.get(
+        `/resource-request/by-status/${status}`
+      )) as { data: RequestedProduct[] };
+
+      // data.forEach((product) => {
+      //   product.specifications = JSON.parse(product.specifications);
+      // });
+      // console.log(data);
       return data;
     },
-    enabled: !!status,
+    // enabled: !!status,
   });
 }
-
 
 export const useCreateRequest = () => {
   const api = useAPI();
