@@ -43,7 +43,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     if (role.includes(UserRole.DEPARTMENT_HEAD)) return "Chef de département";
     if (role.includes(UserRole.RESOURCE_MANAGER))
       return "Responsable des ressources";
-    if (role.includes(UserRole.MAINTENANCE)) return "Service de maintenance";
+    if (role.includes(UserRole.TECHNICIAN)) return "Service de maintenance";
     if (role.includes(UserRole.SUPPLIER)) return "Fournisseur";
 
     return role;

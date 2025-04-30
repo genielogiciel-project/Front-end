@@ -12,7 +12,8 @@ import { z } from "zod";
 export enum UserRole {
   DEPARTMENT_HEAD = "DEPARTMENT_HEAD",
   RESOURCE_MANAGER = "RESOURCE_MANAGER",
-  MAINTENANCE = "MAINTENANCE",
+  TECHNICIAN = "TECHNICIAN",
+  TEACHER = "TEACHER",
   SUPPLIER = "SUPPLIER",
   SUPER_ADMIN = "SUPER_ADMIN",
 }
@@ -153,6 +154,7 @@ export type CallForTender = {
   endDate: Date;
   open: boolean;
   resourceManager: User;
+  proposals: Proposal[];
 };
 
 export type Supplier = User & {

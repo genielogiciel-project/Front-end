@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { CallForTender, RequestedProduct } from "@/lib/types";
+import { CallForTender } from "@/lib/types";
 
 interface UpdateTenderModalProps {
   tender: CallForTender | null;
@@ -34,11 +34,19 @@ export function UpdateTenderModal({
   useEffect(() => {
     if (tender) {
       setTitle(tender.title);
-      setStartDate(tender.startDate.toISOString().split('T')[0]);
-      setEndDate(tender.endDate.toISOString().split('T')[0]);
+      setStartDate(new Date(tender.startDate).toLocaleDateString());
+      setEndDate(new Date(tender.endDate).toLocaleDateString());
       setOpenStatus(tender.open);
     }
   }, [tender]);
+
+  const parseSpecifications = (specs: string) => {
+    try {
+      return JSON.parse(specs);
+    } catch {
+      return {};
+    }
+  };
 
   const handleSubmit = () => {
     if (!title || !startDate || !endDate) {
@@ -54,7 +62,10 @@ export function UpdateTenderModal({
       title,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      open: openStatus
+      open: openStatus,
+      // Preserve existing relationships
+      resourceManager: tender?.resourceManager,
+      proposals: tender?.proposals || [],
     };
 
     onSubmit(updatedData);
@@ -62,7 +73,7 @@ export function UpdateTenderModal({
 
   return (
     <Dialog open={!!tender} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Modifier Appel d'Offre</DialogTitle>
           <DialogDescription>
@@ -106,20 +117,57 @@ export function UpdateTenderModal({
           <div>
             <h4 className="font-medium mb-2">Produits inclus:</h4>
             <div className="space-y-2">
-              {tender?.requestedProducts.map(product => (
-                <div key={product.id} className="text-sm border rounded p-3">
-                  <p className="font-medium">
-                    {product.quantity}x {product.type} ({product.brand})
-                  </p>
-                  {product.specifications && (
-                    <p className="text-muted-foreground mt-1">
-                      {product.specifications}
+              {tender?.requestedProducts.map((product) => {
+                const specs = parseSpecifications(product.specifications);
+
+                return (
+                  <div key={product.id} className="text-sm border rounded p-3">
+                    <p className="font-medium">
+                      {product.quantity}x {product.type} ({product.brand})
                     </p>
-                  )}
-                </div>
-              ))}
+
+                    {product.type === "COMPUTER" && (
+                      <ul className="mt-1 pl-4 list-disc text-muted-foreground">
+                        <li>CPU: {specs.cpu || "Non spécifié"}</li>
+                        <li>RAM: {specs.ram || "Non spécifié"}</li>
+                        <li>Stockage: {specs.storage || "Non spécifié"}</li>
+                        <li>Écran: {specs.monitor || "Non spécifié"}</li>
+                      </ul>
+                    )}
+
+                    {product.type === "PRINTER" && (
+                      <ul className="mt-1 pl-4 list-disc text-muted-foreground">
+                        <li>Vitesse: {specs.printSpeed || "Non spécifié"}</li>
+                        <li>
+                          Résolution: {specs.resolution || "Non spécifié"}
+                        </li>
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
+
+          {tender?.proposals && tender.proposals.length > 0 && (
+            <div>
+              <h4 className="font-medium mb-2">Propositions reçues:</h4>
+              <div className="space-y-2">
+                {tender.proposals.map((proposal) => (
+                  <div key={proposal.id} className="text-sm border rounded p-3">
+                    <p className="font-medium">
+                      Fournisseur: {proposal.supplier.fullName}
+                    </p>
+                    <p>
+                      Date de livraison:{" "}
+                      {new Date(proposal.deliveryDate).toLocaleDateString()}
+                    </p>
+                    <p>Prix total: {proposal.totalPrice} €</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>

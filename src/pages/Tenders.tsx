@@ -8,11 +8,17 @@ import { CallForTender, RequestStatus } from "@/lib/types";
 import { useCreateTender, useGetAllTenders } from "@/hooks/useCallForTenderApi";
 import { useToast } from "@/hooks/use-toast";
 import { useGetAllProductsByRequestStatus as useGetAllProductsByRequestsStatus } from "@/hooks/useRequestApi";
+import { TenderSkeleton } from "@/features/tenders/TenderSkeleton";
+import { TenderList } from "@/features/tenders/TenderList";
+import { UpdateTenderModal } from "@/features/tenders/UpdateTenderModal";
 
 export default function Tenders() {
   const { toast } = useToast();
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const { data: tenders = [], isLoading } = useGetAllTenders();
+  const [selectedTender, setSelectedTender] = useState<CallForTender | null>(
+    null
+  );
   const { data: validatedProducts = [] } = useGetAllProductsByRequestsStatus(
     RequestStatus.VALIDATED
   );
@@ -20,7 +26,7 @@ export default function Tenders() {
 
   const handleCreateTender = async (data: Omit<CallForTender, "id">) => {
     try {
-      console.log(data)
+      console.log(data);
       createTender(data);
       setIsNewModalOpen(false);
       toast({
@@ -36,20 +42,24 @@ export default function Tenders() {
     }
   };
 
+  const handleUpdateSubmit = (updatedData: Partial<CallForTender>) => {
+    // Call your API update function here
+    console.log("Updating tender:", updatedData);
+    setSelectedTender(null);
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-6 max-w-5xl">
       <Header onNewTender={() => setIsNewModalOpen(true)} />
 
       {isLoading ? (
-        <div className="text-center py-10 text-muted-foreground">
-          Chargement des appels d'offre...
-        </div>
-      ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tenders.map((tender) => (
-            <TenderCard key={tender.id} tender={tender} />
+          {[...Array(4)].map((_, i) => (
+            <TenderSkeleton key={i} />
           ))}
         </div>
+      ) : (
+        <TenderList tenders={tenders || []} onEditTender={setSelectedTender} />
       )}
 
       <NewTenderModal
@@ -57,6 +67,12 @@ export default function Tenders() {
         open={isNewModalOpen}
         onClose={() => setIsNewModalOpen(false)}
         onSubmit={handleCreateTender}
+      />
+
+      <UpdateTenderModal
+        tender={selectedTender}
+        onClose={() => setSelectedTender(null)}
+        onSubmit={handleUpdateSubmit}
       />
     </div>
   );

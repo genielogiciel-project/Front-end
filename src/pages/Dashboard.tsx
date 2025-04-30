@@ -132,7 +132,7 @@ export default function Dashboard() {
             <TabsTrigger value="requests">Demandes</TabsTrigger>
           )}
           {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
-            user?.role.includes(UserRole.MAINTENANCE)) && (
+            user?.role.includes(UserRole.TECHNICIAN)) && (
             <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
           )}
           {user?.role.includes(UserRole.SUPPLIER) && (
@@ -319,7 +319,7 @@ export default function Dashboard() {
         )}
 
         {(user?.role.includes(UserRole.RESOURCE_MANAGER) ||
-          user?.role.includes(UserRole.MAINTENANCE)) && (
+          user?.role.includes(UserRole.TECHNICIAN)) && (
           <TabsContent value="maintenance" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="dashboard-card">

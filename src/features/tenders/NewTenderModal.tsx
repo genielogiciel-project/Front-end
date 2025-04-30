@@ -9,16 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import {
-  CallForTender,
-  RequestedProduct,
-  RequestStatus,
-  ResourceStatus,
-  ResourceType,
-} from "@/lib/types";
-import { useGetAllProductsByRequestStatus as useGetAllProductsByRequestStatus } from "@/hooks/useRequestApi";
+import { CallForTender, RequestedProduct } from "@/lib/types";
 import { useAppSelector } from "@/lib/store";
-import { auth } from "../../api/index";
 
 interface NewTenderModalProps {
   open: boolean;
@@ -113,6 +105,10 @@ export function NewTenderModal({
     };
 
     onSubmit(newTender);
+    setTitle("");
+    setStartDate("");
+    setEndDate("");
+    setSelectedProducts([]);
   };
 
   const toggleProduct = (productId: string) => {

@@ -31,15 +31,21 @@ const navigation = [
     roles: [
       UserRole.DEPARTMENT_HEAD,
       UserRole.RESOURCE_MANAGER,
-      UserRole.MAINTENANCE,
+      UserRole.TECHNICIAN,
       UserRole.SUPPLIER,
+      UserRole.SUPER_ADMIN,
+      UserRole.TEACHER,
     ],
   },
   {
     name: "Demandes",
     href: "/requests",
     icon: FileText,
-  roles: [UserRole.DEPARTMENT_HEAD, UserRole.RESOURCE_MANAGER],
+    roles: [
+      UserRole.DEPARTMENT_HEAD,
+      UserRole.RESOURCE_MANAGER,
+      UserRole.TEACHER,
+    ],
   },
   {
     name: "Appels d'offre",
@@ -57,7 +63,7 @@ const navigation = [
     name: "Maintenance",
     href: "/maintenance",
     icon: AlertTriangle,
-    roles: [UserRole.MAINTENANCE, UserRole.DEPARTMENT_HEAD, UserRole.RESOURCE_MANAGER],
+    roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
   },
   {
     name: "Fournisseurs",
@@ -71,12 +77,12 @@ const navigation = [
     icon: ClipboardList,
     roles: [UserRole.RESOURCE_MANAGER],
   },
-  {
-    name: "Paramètres",
-    href: "/settings",
-    icon: Settings,
-    roles: [UserRole.RESOURCE_MANAGER],
-  },
+  // {
+  //   name: "Paramètres",
+  //   href: "/settings",
+  //   icon: Settings,
+  //   roles: [UserRole.RESOURCE_MANAGER],
+  // },
 ];
 
 export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
@@ -85,11 +91,15 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const dispatch = useAppDispatch();
 
   let filteredNavigation = navigation;
+
   if (!user?.role.includes(UserRole.SUPER_ADMIN)) {
+    console.log(user?.role);
     filteredNavigation = navigation.filter((item) =>
-      user?.role.filter((role) => item.roles.includes(role))
+      user.role.some((role) => item.roles.includes(role))
     );
   }
+
+  console.log(filteredNavigation);
 
   const handleLogout = () => {
     dispatch(logout());

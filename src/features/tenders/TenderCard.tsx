@@ -1,14 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Ban } from "lucide-react";
+import { Clock, Ban, Edit } from "lucide-react";
 import { CallForTender } from "@/lib/types";
 
 interface TenderCardProps {
   tender: CallForTender;
+  onEdit?: (tender: CallForTender) => void;
 }
 
-export function TenderCard({ tender }: TenderCardProps) {
+export function TenderCard({ tender, onEdit }: TenderCardProps) {
   const parseSpecifications = (specs: string) => {
     try {
       return JSON.parse(specs);
@@ -43,14 +44,24 @@ export function TenderCard({ tender }: TenderCardProps) {
               </p>
             </div>
           </div>
-          <div
-            className={`px-3 py-1 rounded-full text-sm ${
-              status === "OPEN"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {status === "OPEN" ? "EN COURS" : "CLÔTURÉ"}
+          <div className="flex gap-2">
+            <div
+              className={`px-3 py-1 rounded-full text-sm ${
+                status === "OPEN"
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {status === "OPEN" ? "EN COURS" : "CLÔTURÉ"}
+            </div>
+            {onEdit && (
+              <button
+                onClick={() => onEdit(tender)}
+                className="p-1 text-muted-foreground hover:text-primary"
+              >
+                <Edit className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       </CardHeader>

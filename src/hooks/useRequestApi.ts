@@ -1,6 +1,7 @@
 import { useAPI } from "@/api";
 import { RequestedProduct, ResourceRequest } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export const useGetAllRequests = () => {
   const api = useAPI();
@@ -28,6 +29,13 @@ export const useGetAllRequests = () => {
 
 export function useGetAllProductsByRequestStatus(status: string) {
   const api = useAPI();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["resourceRequests", status],
+    });
+  }, [queryClient, status]);
 
   return useQuery({
     queryKey: ["resourceRequests", status],
@@ -35,14 +43,9 @@ export function useGetAllProductsByRequestStatus(status: string) {
       const { data } = (await api.get(
         `/resource-request/by-status/${status}`
       )) as { data: RequestedProduct[] };
-
-      // data.forEach((product) => {
-      //   product.specifications = JSON.parse(product.specifications);
-      // });
-      // console.log(data);
       return data;
     },
-    // enabled: !!status,
+    staleTime: Infinity,
   });
 }
 
