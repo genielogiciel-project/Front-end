@@ -26,19 +26,19 @@ export const useGetAllRequests = () => {
   });
 };
 
-export const useGetResourceRequestsByStatus = (
-  status: "SENT" | "SUBMITTED"
-) => {
+export function useGetResourceRequestsByStatus(status: string) {
   const api = useAPI();
 
   return useQuery({
-    queryKey: ["requests", status],
+    queryKey: ["resourceRequests", status],
     queryFn: async () => {
       const { data } = await api.get(`/resource-request/by-status/${status}`);
       return data;
     },
+    enabled: !!status,
   });
-};
+}
+
 
 export const useCreateRequest = () => {
   const api = useAPI();
