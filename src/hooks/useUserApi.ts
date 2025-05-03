@@ -26,6 +26,18 @@ export const useGetAllTeachers = () => {
   });
 }
 
+export const useGetAllTechnicians = () => {
+  const api = useAPI();
+
+  return useQuery<User[]>({
+    queryKey: ["teachers"],
+    queryFn: async () => {
+      const { data } = await api.get("/user/technicians");
+      return data;
+    },
+  });
+};
+
 export const useCreateUser = () => {
   const api = useAPI();
   const queryClient = useQueryClient();

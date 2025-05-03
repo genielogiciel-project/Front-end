@@ -4,6 +4,7 @@ import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import { lazy } from "react";
 import { Register } from "@/pages/Register";
+import PanicReportPage from "@/pages/panicReport";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Requests = lazy(() => import("@/pages/Requests"));
@@ -61,6 +62,10 @@ const protectedRoutes: RouteObject[] = [
   {
     path: "/reports",
     element: <Reports />,
+  },
+  {
+    path: "/panic",
+    element: <PanicReportPage />
   },
   {
     path: "/settings",

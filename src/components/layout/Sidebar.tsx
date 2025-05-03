@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronLeft,
   Menu,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UserRole } from "@/lib/types";
@@ -46,6 +47,7 @@ const navigation = [
       UserRole.RESOURCE_MANAGER,
       UserRole.TEACHER,
     ],
+    roles: [UserRole.DEPARTMENT_HEAD, UserRole.RESOURCE_MANAGER],
   },
   {
     name: "Appels d'offre",
@@ -60,11 +62,23 @@ const navigation = [
     roles: [UserRole.RESOURCE_MANAGER, UserRole.DEPARTMENT_HEAD],
   },
   {
+    name: "Rapports de panne",
+    href: "/panic",
+    icon: AlertCircle,
+    roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD],
+  },
+  {
     name: "Maintenance",
     href: "/maintenance",
     icon: AlertTriangle,
     roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
+    roles: [
+      UserRole.TECHNICIAN,
+      UserRole.DEPARTMENT_HEAD,
+      UserRole.RESOURCE_MANAGER,
+    ],
   },
+
   {
     name: "Fournisseurs",
     href: "/suppliers",
@@ -146,7 +160,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 className={cn(
                   "flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-blue-400 text-white" // 🔴 Red background, white text for active
                     : "text-gray-700 hover:bg-muted"
                 )}
                 title={!isOpen ? item.name : undefined}
@@ -154,7 +168,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <item.icon
                   className={cn(
                     "h-5 w-5 flex-shrink-0",
-                    isActive ? "text-primary-foreground" : "text-gray-500"
+                    isActive ? "text-white" : "text-gray-500" // ✅ white icon on red background
                   )}
                   aria-hidden="true"
                 />

@@ -19,7 +19,11 @@ export const useCreatePanicReport = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newReport: Omit<PanicReport, "id" | "reportedAt" | "status"> & { status?: PanicReportStatus }) => {
+    mutationFn: async (
+      newReport: Omit<PanicReport, "id" | "reportedAt" | "status"> & {
+        status?: PanicReportStatus;
+      }
+    ) => {
       const { data } = await api.post("/panic-reports", {
         ...newReport,
         reportedAt: new Date(),
@@ -38,7 +42,13 @@ export const useUpdatePanicReport = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<PanicReport> }) => {
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: string;
+      updatedData: Partial<PanicReport>;
+    }) => {
       const { data } = await api.put(`/panic-reports/${id}`, updatedData);
       return data;
     },

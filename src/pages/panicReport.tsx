@@ -20,43 +20,37 @@ import {
   Clock,
   ArrowLeftRight,
 } from "lucide-react";
+import { useGetAllPanicReports } from "@/hooks/usePanicReportApi";
 import { PanicReportStatus } from "@/lib/types";
-import { NewMaintenanceForm } from "@/features/maintenance/NewMaintenanceForm";
-import { useGetAllMaintenanceRecords } from "@/hooks/useMaintenanceRecordApi"; // ✅ from your file
-import { useGetAllPanicReports } from "@/hooks/usePanicReportApi"; // You need to create this
-import { useGetAllTechnicians } from "@/hooks/useUserApi"; // You need to create this
+import { NewPanicReportForm } from "@/features/panicReport/NewPanicReportForm";
 
-export default function Maintenance() {
-  const [formOpen, setFormOpen] = useState(false);
+export default function PanicReportPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<PanicReportStatus | "ALL">(
     "ALL"
   );
+  const [formOpen, setFormOpen] = useState(false);
 
-  const { data: maintenanceRecords = [] } = useGetAllMaintenanceRecords();
-  const { data: panicReports = [] } = useGetAllPanicReports();
-  const { data: technicians = [] } = useGetAllTechnicians();
+  const { data: reports = [] } = useGetAllPanicReports();
 
-  const filteredRequests = maintenanceRecords.filter((request) => {
+  const filteredReports = reports.filter((report) => {
     const matchesSearch =
-      request.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.panicReport?.resourceId
-        ?.toLowerCase()
-        ?.includes(searchQuery.toLowerCase());
+      report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      report.resource?.name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
-      statusFilter === "ALL" || request.panicReport?.status === statusFilter;
+      statusFilter === "ALL" || report.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusIcon = (status: PanicReportStatus) => {
     switch (status) {
-      case PanicReportStatus.REPORTED:
+      case "REPORTED":
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case PanicReportStatus.IN_PROGRESS:
+      case "IN_PROGRESS":
         return <Clock className="h-5 w-5 text-blue-500" />;
-      case PanicReportStatus.RESOLVED:
+      case "RESOLVED":
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case PanicReportStatus.RETURNED_TO_SUPPLIER:
+      case "RETURNED_TO_SUPPLIER":
         return <ArrowLeftRight className="h-5 w-5 text-purple-500" />;
       default:
         return null;
@@ -66,10 +60,10 @@ export default function Maintenance() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Maintenance</h1>
+        <h1 className="text-3xl font-bold">Rapports de Panne</h1>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Signaler un problème
+          Signaler une panne
         </Button>
       </div>
 
@@ -77,7 +71,7 @@ export default function Maintenance() {
         <div className="relative flex-1">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher une demande de maintenance..."
+            placeholder="Rechercher un rapport de panne..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-8"
@@ -105,74 +99,92 @@ export default function Maintenance() {
       </div>
 
       <div className="grid gap-4">
-        {filteredRequests.map((request) => (
-          <Card key={request.id}>
+        {filteredReports.map((report) => (
+          <Card key={report.id}>
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  {getStatusIcon(request.panicReport?.status)}
+                  {getStatusIcon(report.status)}
                   <div>
                     <CardTitle className="text-lg">
-                      Maintenance #{request.id}
+                      Rapport #{report.id}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Ressource: {request.panicReport?.resourceId}
+                      Ressource : {report.resource?.name}
                     </p>
                   </div>
                 </div>
                 <div
                   className={`px-3 py-1 rounded-full text-sm ${
-                    request.panicReport?.status === PanicReportStatus.RESOLVED
+                    report.status === "RESOLVED"
                       ? "bg-green-100 text-green-800"
-                      : request.panicReport?.status ===
-                          PanicReportStatus.IN_PROGRESS
+                      : report.status === "IN_PROGRESS"
                         ? "bg-blue-100 text-blue-800"
-                        : request.panicReport?.status ===
-                            PanicReportStatus.RETURNED_TO_SUPPLIER
+                        : report.status === "RETURNED_TO_SUPPLIER"
                           ? "bg-purple-100 text-purple-800"
                           : "bg-yellow-100 text-yellow-800"
                   }`}
                 >
-                  {request.panicReport?.status}
+                  {report.status}
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium mb-1">
-                    Détail de l'intervention :
-                  </h4>
+                  <h4 className="font-medium mb-1">Description :</h4>
                   <p className="text-sm text-muted-foreground">
-                    {request.details}
+                    {report.description}
                   </p>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-medium mb-1">Technicien:</h4>
+                    <h4 className="font-medium mb-1">Signalé par :</h4>
                     <p className="text-sm text-muted-foreground">
-                      {request.technician?.name}
+                      {report.teacher?.name ?? "—"}
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-1">Date:</h4>
+                    <h4 className="font-medium mb-1">Date de signalement :</h4>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(request.maintenanceDate).toLocaleDateString()}
+                      {new Date(report.reportDate).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
+
+                {report.resource && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="font-medium mb-1">Type de ressource :</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {report.resource.type}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="font-medium mb-1">Numéro de série :</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {report.resource.serialNumber}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {report.maintenanceRecord && (
+                  <div>
+                    <h4 className="font-medium mb-1">Intervention :</h4>
+                    <p className="text-sm text-muted-foreground">
+                      {report.maintenanceRecord.details}
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <NewMaintenanceForm
-        open={formOpen}
-        onClose={() => setFormOpen(false)}
-        technicians={technicians}
-        panicReports={panicReports?.filter((r) => !r.resolution)} // unresolved
-      />
+      <NewPanicReportForm open={formOpen} onClose={() => setFormOpen(false)} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// hooks/useRequestApi.ts
 import { useAPI } from "@/api";
 import { RequestedProduct, ResourceRequest } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,18 +11,28 @@ export const useGetAllRequests = () => {
     queryKey: ["requests"],
     queryFn: async () => {
       try {
-        let { data } = (await api.get("/resource-request")) as {
-          data: ResourceRequest[];
-        };
+        const { data } = await api.get<ResourceRequest[]>("/resource-request");
+
+        // Convertir specs string -> object
         data.forEach((request) => {
           request.requestedProducts.forEach((product) => {
-            product.specifications = JSON.parse(product.specifications);
+            try {
+              if (typeof product.specifications === "string") {
+                product.specifications = JSON.parse(product.specifications);
+              }
+            } catch (e) {
+              console.warn(
+                "Invalid JSON in specifications:",
+                product.specifications
+              );
+            }
           });
         });
+
         return data;
       } catch (error) {
         console.error("Error fetching requests:", error);
-        throw error; // Rethrow the error to trigger the error state in the query
+        throw error;
       }
     },
   });
@@ -40,10 +51,15 @@ export function useGetAllProductsByRequestStatus(status: string) {
   return useQuery({
     queryKey: ["resourceRequests", status],
     queryFn: async () => {
-      const { data } = (await api.get(
-        `/resource-request/by-status/${status}`
-      )) as { data: RequestedProduct[] };
-      return data;
+      try {
+        const { data } = await api.get<RequestedProduct[]>(
+          `/resource-request/by-status/${status}`
+        );
+        return data;
+      } catch (error) {
+        console.error("Error fetching products by status:", error);
+        throw error;
+      }
     },
     staleTime: Infinity,
   });
