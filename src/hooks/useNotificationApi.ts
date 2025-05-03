@@ -20,7 +20,7 @@ export const useGetAllNotificationsByRole = (role: string) => {
   return useQuery<Notification[]>({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const { data } = await api.get(`/notification/by-s/${role}`);
+      const { data } = await api.get(`/notification/role/${role}`);
       return data;
     },
   });

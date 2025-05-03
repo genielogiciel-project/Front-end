@@ -93,13 +93,13 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   let filteredNavigation = navigation;
 
   if (!user?.role.includes(UserRole.SUPER_ADMIN)) {
-    console.log(user?.role);
+    // console.log(user?.role);
     filteredNavigation = navigation.filter((item) =>
       user.role.some((role) => item.roles.includes(role))
     );
   }
 
-  console.log(filteredNavigation);
+  // console.log(filteredNavigation);
 
   const handleLogout = () => {
     dispatch(logout());

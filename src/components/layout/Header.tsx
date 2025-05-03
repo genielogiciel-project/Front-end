@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/authSlice";
 import { UserRole } from "@/lib/types";
-import { useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
+import { useGetAllNotifications, useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -23,7 +23,8 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
+  // const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
+  const { data: notifications } = useGetAllNotifications();
   // @ts-ignore
   const name =
     // @ts-ignore
