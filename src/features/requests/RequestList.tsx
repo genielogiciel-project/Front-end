@@ -24,13 +24,13 @@ export function RequestList({
       </div>
     );
   }
-  if (requests.length === 0) {
-    return (
-      <div className="text-center py-10 text-muted-foreground">
-        Aucune demande trouvée.
-      </div>
-    );
-  }
+if (!requests || requests.length === 0) {
+  return (
+    <div className="text-center py-10 text-muted-foreground">
+      Aucune demande trouvée.
+    </div>
+  );
+}
 
   return (
     <>

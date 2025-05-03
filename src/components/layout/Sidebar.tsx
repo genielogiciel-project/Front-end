@@ -113,7 +113,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
     );
   }
 
-  console.log(filteredNavigation);
+  // console.log(filteredNavigation);
 
   const handleLogout = () => {
     dispatch(logout());

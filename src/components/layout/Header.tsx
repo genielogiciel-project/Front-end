@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/store";
-import { Bell, User, Search, Menu } from "lucide-react";
+import { /* Bell, */ User, Search, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/authSlice";
 import { UserRole } from "@/lib/types";
-import { useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
+// import { useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -23,7 +23,9 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
+
+  // const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
+
   // @ts-ignore
   const name =
     // @ts-ignore
@@ -32,10 +34,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
     ?.split(" ")
     .map((n) => n.charAt(0))
     .join("");
-  // const { notifications } = useAppSelector((state) => state.notifications);
+
   const [searchQuery, setSearchQuery] = useState("");
 
-  const unreadNotifications = notifications?.filter((n) => !n.seen)?.length;
+  // const unreadNotifications = notifications?.filter((n) => !n.seen)?.length;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -74,6 +76,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Dropdown des notifications désactivé temporairement */}
+        {/*
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
@@ -95,7 +99,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
                   className="cursor-pointer"
                 >
                   <div
-                    className={`${notification.seen ? "opacity-50" : "font-medium"}`}
+                    className={`${
+                      notification.seen ? "opacity-50" : "font-medium"
+                    }`}
                   >
                     <p>{notification.message}</p>
                     <p className="text-xs text-muted-foreground">
@@ -113,6 +119,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
