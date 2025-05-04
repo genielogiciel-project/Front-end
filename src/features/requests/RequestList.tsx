@@ -1,10 +1,12 @@
 import { RequestCard } from "./RequestCard";
 import { useState } from "react";
-import { UpdateRequestModal } from "./UpdateRequestModal"; // we'll create this!
+import { UpdateRequestModal } from "./UpdateRequestModal";
+import Masonry from "react-masonry-css";
+import { ResourceRequest } from "@/lib/types";
 
 interface RequestListProps {
   isLoading: boolean;
-  requests: any[];
+  requests: ResourceRequest[];
   onUpdate: (id: string, updatedData: any) => void;
   onDelete: (id: string) => void;
 }
@@ -24,24 +26,30 @@ export function RequestList({
       </div>
     );
   }
-if (!requests || requests.length === 0) {
-  return (
-    <div className="text-center py-10 text-muted-foreground">
-      Aucune demande trouvée.
-    </div>
-  );
-}
+  if (!requests || requests.length === 0) {
+    return (
+      <div className="text-center py-10 text-muted-foreground">
+        Aucune demande trouvée.
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-min">
         {requests?.map((request) => (
-          <RequestCard
+          <Masonry
+            breakpointCols={1}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
             key={request.id}
-            request={request}
-            onUpdate={() => setEditingRequest(request)}
-            onDelete={() => onDelete(request.id)}
-          />
+          >
+            <RequestCard
+              request={request}
+              onUpdate={() => setEditingRequest(request)}
+              onDelete={() => onDelete(request.id)}
+            />
+          </Masonry>
         ))}
       </div>
 

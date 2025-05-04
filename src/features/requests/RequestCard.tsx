@@ -16,8 +16,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ResourceRequest, ResourceType } from "@/lib/types";
+import { ResourceRequest, ResourceType, UserRole } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
+import { CheckRole } from "@/lib/CheckRole";
 
 interface RequestCardProps {
   request: ResourceRequest;
@@ -27,14 +28,20 @@ interface RequestCardProps {
 
 export function RequestCard({ request, onUpdate, onDelete }: RequestCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  // const { user } = useAppSelector((state) => state.auth);
+  // const updateAndDeleteMenu = () => {
+  //   if (CheckRole(user?.role!, [UserRole.DEPARTMENT_HEAD]))
+  //     return true;
+  //   return user?.id == request.teacher.id;
+  // };
 
   return (
     <Card className="h-full overflow-hidden transition-all duration-200 hover:shadow-md">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-              <span>Demande #{request.id.slice(0, 20)}</span>
+            <CardTitle className="text-lg sm:text-xl flex items-start gap-2">
+              <span>Demande #{request.id.slice(0, 25)}</span>
               <Button
                 variant="ghost"
                 size="sm"
@@ -49,29 +56,37 @@ export function RequestCard({ request, onUpdate, onDelete }: RequestCardProps) {
               </Button>
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Département: {request.department.name}
+              Département: {request?.department?.name}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Professeur: {request?.teacher?.fullName}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <StatusBadge status={request.status} />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                  <span className="sr-only">Menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={onUpdate}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Modifier
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onDelete} className="text-red-600">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <StatusBadge status={request?.status} />
+            {CheckRole(request?.teacher?.role!, [
+              UserRole.TEACHER,
+              UserRole.DEPARTMENT_HEAD,
+            ]) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
+                    <span className="sr-only">Menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={onUpdate}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Modifier
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDelete} className="text-red-600">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -138,9 +153,14 @@ export function RequestCard({ request, onUpdate, onDelete }: RequestCardProps) {
                               <>
                                 <span>Marque: {item.brand}</span>
                                 <br />
-                                <span>Vitesse d'impression: {item.specifications.printSpeed}</span>
+                                <span>
+                                  Vitesse d'impression:{" "}
+                                  {item.specifications.printSpeed}
+                                </span>
                                 <br />
-                                <span>Resolution: {item.specifications.resolution}</span>
+                                <span>
+                                  Resolution: {item.specifications.resolution}
+                                </span>
                               </>
                             )}
                           </p>

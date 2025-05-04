@@ -3,7 +3,6 @@ import { Header } from "@/features/requests/Header";
 import { FilterBar } from "@/features/requests/FilterBar";
 import { RequestList } from "@/features/requests/RequestList";
 import { NewRequestModal } from "@/features/requests/newRequestModal";
-import { useAppSelector } from "@/lib/store";
 import { RequestStatus } from "@/lib/types";
 import {
   useGetAllRequests,
@@ -13,7 +12,6 @@ import {
 } from "@/hooks/useRequestApi";
 
 export default function Requests() {
-  // const { requests } = useAppSelector((state) => state.requests);
   const { data: requests, isLoading } = useGetAllRequests();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "ALL">(
@@ -25,9 +23,6 @@ export default function Requests() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   let filteredRequests = requests;
-  // if (!requests || requests.length === 0) {
-  //   return <p>Aucune requête trouvée.</p>;
-  // }
   if (!isLoading) {
     filteredRequests = requests?.filter(
       ({ id, status }) =>

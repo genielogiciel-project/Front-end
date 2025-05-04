@@ -19,11 +19,17 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { RequestStatus, ResourceType } from "@/lib/types";
+import {
+  RequestStatus,
+  ResourceRequest,
+  ResourceType,
+  UserRole,
+} from "@/lib/types";
 import { useCreateRequest } from "@/hooks/useRequestApi";
 import { useGetAllDepartments } from "@/hooks/useDepartmentApi";
 import { useToast } from "@/hooks/use-toast";
 import { useAppSelector } from "@/lib/store";
+import { CheckRole } from "@/lib/CheckRole";
 
 interface NewRequestModalProps {
   open: boolean;
@@ -50,8 +56,12 @@ export function NewRequestModal({ open, onClose }: NewRequestModalProps) {
   const { data: departments = [] } = useGetAllDepartments();
   const { mutate: createRequest, isPending } = useCreateRequest();
 
-  const [departmentId, setDepartmentId] = useState("");
-  const [justification, setJustification] = useState("");
+  const [departmentId, setDepartmentId] = useState(
+    user?.role.includes(UserRole.DEPARTMENT_HEAD) ||
+      user?.role.includes(UserRole.TEACHER)
+      ? user?.department?.id
+      : ""
+  );
   const [requestedProducts, setRequestedProducts] = useState<Product[]>([
     {
       resourceType: ResourceType.COMPUTER,
@@ -171,7 +181,7 @@ export function NewRequestModal({ open, onClose }: NewRequestModalProps) {
     }
 
     // Prepare the request data with stringified specifications
-    const requestData = {
+    const requestData: any = {
       department: {
         id: departmentId,
       },
@@ -207,8 +217,6 @@ export function NewRequestModal({ open, onClose }: NewRequestModalProps) {
       },
     };
 
-    console.log(requestData);
-
     createRequest(requestData, {
       onSuccess: () => {
         toast({
@@ -218,7 +226,6 @@ export function NewRequestModal({ open, onClose }: NewRequestModalProps) {
         onClose();
         // Reset form fields
         setDepartmentId("");
-        setJustification("");
         setRequestedProducts([
           {
             resourceType: ResourceType.COMPUTER,
@@ -261,7 +268,13 @@ export function NewRequestModal({ open, onClose }: NewRequestModalProps) {
               <Select
                 value={departmentId}
                 onValueChange={setDepartmentId}
-                disabled={isPending}
+                disabled={
+                  CheckRole(
+                    user?.role!,
+                    [UserRole.TEACHER, UserRole.DEPARTMENT_HEAD],
+                    true
+                  ) || isPending
+                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Sélectionnez un département" />

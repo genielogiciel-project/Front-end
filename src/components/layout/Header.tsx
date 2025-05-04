@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/lib/store";
-import { /* Bell, */ User, Search, Menu } from "lucide-react";
+import { Bell, User, Search, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -13,8 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { logout } from "@/features/auth/authSlice";
-import { UserRole } from "@/lib/types";
-// import { useGetAllNotificationsByRole } from "@/hooks/useNotificationApi";
+import { Notification, notificationTypeIcons, UserRole } from "@/lib/types";
+import {
+  useGetAllNotificationsByUser,
+  useReadNotification,
+} from "@/hooks/useNotificationApi";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -23,13 +26,15 @@ interface HeaderProps {
 export default function Header({ onMenuClick }: HeaderProps) {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
+  const [showNotificationDetail, setShowNotificationDetail] = useState(false);
 
-  // const { data: notifications } = useGetAllNotificationsByRole(user?.role[0]);
+  const { data: notifications } = useGetAllNotificationsByUser(user?.id!);
+  const { mutate: readNotification } = useReadNotification();
 
-  // @ts-ignore
   const name =
-    // @ts-ignore
-    user?.fullName?.charAt(0).toUpperCase() + user?.fullName?.slice(1);
+    user?.fullName?.charAt(0).toUpperCase() + user?.fullName?.slice(1) || "";
   const iconName = user?.fullName
     ?.split(" ")
     .map((n) => n.charAt(0))
@@ -37,7 +42,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   const [searchQuery, setSearchQuery] = useState("");
 
-  // const unreadNotifications = notifications?.filter((n) => !n.seen)?.length;
+  const unreadNotifications = notifications?.filter((n) => !n.seen)?.length;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -53,8 +58,17 @@ export default function Header({ onMenuClick }: HeaderProps) {
     return role;
   };
 
+  const handleNotificationClick = (notification: any) => {
+    setSelectedNotification(notification);
+    setShowNotificationDetail(true);
+  };
+
+  const closeNotificationDetail = () => {
+    setShowNotificationDetail(false);
+  };
+
   return (
-    <header className="bg-white border-b border-border flex items-center justify-between px-4 py-2 h-16">
+    <header className="bg-white border-b border-border flex items-center justify-between px-4 py-2 h-16 relative">
       <div className="flex items-center w-full md:w-auto gap-4">
         <Button
           variant="ghost"
@@ -76,13 +90,48 @@ export default function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Dropdown des notifications désactivé temporairement */}
-        {/*
+        {/* Notification Detail Panel */}
+        {showNotificationDetail && selectedNotification && (
+          <div className="fixed inset-0 bg-black/70 bg-opacity-50 z-40 flex items-center justify-center">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
+              <button
+                onClick={closeNotificationDetail}
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-full bg-primary/10">
+                    {notificationTypeIcons[selectedNotification.type]}
+                  </div>
+                  <h3 className="text-lg font-semibold">
+                    {selectedNotification.type}
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(
+                      selectedNotification.sentDate
+                    ).toLocaleDateString()}
+                  </p>
+                  <p className="text-base">{selectedNotification.message}</p>
+                </div>
+                <div className="pt-4">
+                  <Button onClick={closeNotificationDetail} className="w-full">
+                    Fermer
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="h-5 w-5" />
-              {unreadNotifications > 0 && (
+              {unreadNotifications! > 0 && (
                 <span className="absolute top-1 right-1 bg-destructive text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                   {unreadNotifications}
                 </span>
@@ -92,20 +141,33 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {notifications?.length > 0 ? (
+            {notifications?.length! > 0 ? (
               notifications?.slice(0, 5).map((notification) => (
                 <DropdownMenuItem
                   key={notification.id}
                   className="cursor-pointer"
+                  onClick={() => {
+                    handleNotificationClick(notification);
+                    readNotification(notification.id);
+                  }}
                 >
                   <div
                     className={`${
                       notification.seen ? "opacity-50" : "font-medium"
                     }`}
                   >
-                    <p>{notification.message}</p>
+                    <p className="flex items-center gap-1">
+                      {notificationTypeIcons[notification.type]}
+                      {notification.type}
+                    </p>
+                    <p className="text-sm text-muted-foreground truncate ml-10">
+                      {notification.message.split("").length > 40
+                        ? notification.message.split("").slice(0, 40).join("") +
+                          "..."
+                        : notification.message}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(notification.sentDate).toLocaleString()}
+                      {new Date(notification.sentDate).toLocaleDateString()}
                     </p>
                   </div>
                 </DropdownMenuItem>
@@ -119,7 +181,6 @@ export default function Header({ onMenuClick }: HeaderProps) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        */}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

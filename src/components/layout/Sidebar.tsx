@@ -47,7 +47,6 @@ const navigation = [
       UserRole.RESOURCE_MANAGER,
       UserRole.TEACHER,
     ],
-    roles: [UserRole.DEPARTMENT_HEAD, UserRole.RESOURCE_MANAGER],
   },
   {
     name: "Appels d'offre",
@@ -72,11 +71,6 @@ const navigation = [
     href: "/maintenance",
     icon: AlertTriangle,
     roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
-    roles: [
-      UserRole.TECHNICIAN,
-      UserRole.DEPARTMENT_HEAD,
-      UserRole.RESOURCE_MANAGER,
-    ],
   },
 
   {
@@ -107,9 +101,8 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   let filteredNavigation = navigation;
 
   if (!user?.role.includes(UserRole.SUPER_ADMIN)) {
-    console.log(user?.role);
     filteredNavigation = navigation.filter((item) =>
-      user.role.some((role) => item.roles.includes(role))
+      user?.role.some((role) => item.roles.includes(role))
     );
   }
 
@@ -122,7 +115,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   return (
     <div
       className={cn(
-        "fixed md:relative flex flex-col h-full bg-white border-r border-border transition-all duration-300",
+        "fixed md:relative flex flex-col h-full bg-whit border-r border-border transition-all duration-300",
         isOpen ? "w-64" : "w-[60px]"
       )}
     >
@@ -158,23 +151,24 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors",
+                  "flex items-center px-2 py-2 text-sm font-medium rounded-md group transition-colors flex-nowrap",
                   isActive
-                    ? "bg-blue-400 text-white" // 🔴 Red background, white text for active
-                    : "text-gray-700 hover:bg-muted"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-primary hover:bg-muted",
+                  !isOpen && "justify-center"
                 )}
                 title={!isOpen ? item.name : undefined}
               >
                 <item.icon
                   className={cn(
                     "h-5 w-5 flex-shrink-0",
-                    isActive ? "text-white" : "text-gray-500" // ✅ white icon on red background
+                    isActive ? "text-white" : "text-gray-500"
                   )}
                   aria-hidden="true"
                 />
                 <span
                   className={cn(
-                    "ml-3 transition-opacity duration-300",
+                    "ml-3 transition-opacity duration-300 text-nowrap",
                     !isOpen && "opacity-0 hidden"
                   )}
                 >
@@ -191,16 +185,17 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           onClick={handleLogout}
           variant="outline"
           className={cn(
-            "w-full justify-start",
+            isOpen && "w-full justify-center",
             !isOpen && "px-0 justify-center"
           )}
+          size={isOpen ? "default" : "icon"}
           asChild
         >
           <Link to="/login">
-            <LogOut className="h-4 w-4" />
+            <LogOut className="size-2" />
             <span
               className={cn(
-                "ml-2 transition-opacity duration-300",
+                "ml-2 transition-opacity duration-300 ",
                 !isOpen && "opacity-0 hidden"
               )}
             >

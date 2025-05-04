@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { Header } from "@/features/tenders/tendersHeader";
-import { TenderCard } from "@/features/tenders/TenderCard";
 import { NewTenderModal } from "@/features/tenders/NewTenderModal";
-import { CallForTender, RequestStatus } from "@/lib/types";
-import { useCreateTender, useGetAllTenders } from "@/hooks/useCallForTenderApi";
+import { CallForTender } from "@/lib/types";
+import { useCreateTender, useGetAllTenders, useGetRequestedProductsForCallForTender } from "@/hooks/useCallForTenderApi";
 import { useToast } from "@/hooks/use-toast";
-import { useGetAllProductsByRequestStatus as useGetAllProductsByRequestsStatus } from "@/hooks/useRequestApi";
 import { TenderSkeleton } from "@/features/tenders/TenderSkeleton";
 import { TenderList } from "@/features/tenders/TenderList";
 import { UpdateTenderModal } from "@/features/tenders/UpdateTenderModal";
@@ -19,9 +17,7 @@ export default function Tenders() {
   const [selectedTender, setSelectedTender] = useState<CallForTender | null>(
     null
   );
-  const { data: validatedProducts = [] } = useGetAllProductsByRequestsStatus(
-    RequestStatus.VALIDATED
-  );
+  const { data: validatedProducts = [] } = useGetRequestedProductsForCallForTender();
   const { mutate: createTender } = useCreateTender();
 
   const handleCreateTender = async (data: Omit<CallForTender, "id">) => {

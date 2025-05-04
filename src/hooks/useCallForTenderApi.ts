@@ -1,5 +1,5 @@
 import { useAPI } from "@/api";
-import { CallForTender } from "@/lib/types";
+import { CallForTender, RequestedProduct } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllTenders = () => {
@@ -14,6 +14,17 @@ export const useGetAllTenders = () => {
   });
 };
 
+export const useGetRequestedProductsForCallForTender = () => {
+  const api = useAPI();
+
+  return useQuery<RequestedProduct[]>({
+    queryKey: ["requested-products"],
+    queryFn: async () => {
+      const { data } = await api.get("/call-for-tender/requested-products");
+      return data;
+    },
+  });
+};
 
 export const useCreateTender = () => {
   const api = useAPI();
@@ -26,6 +37,7 @@ export const useCreateTender = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenders"] });
+      queryClient.invalidateQueries({ queryKey: ["requested-products"] });
     },
   });
 };
@@ -35,7 +47,13 @@ export const useUpdateTender = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<CallForTender> }) => {
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: string;
+      updatedData: Partial<CallForTender>;
+    }) => {
       const { data } = await api.put(`/call-for-tender/${id}`, updatedData);
       return data;
     },

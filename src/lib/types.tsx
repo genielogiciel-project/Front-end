@@ -1,11 +1,24 @@
-export type Role =
-  | "SUPER_ADMIN"
-  | "TEACHER"
-  | "TECHNICIAN"
-  | "SUPPLIER"
-  | "RESOURCE_MANAGER"
-  | "DEPARTMENT_HEAD";
+// export type Role =
+//   | "SUPER_ADMIN"
+//   | "TEACHER"
+//   | "TECHNICIAN"
+//   | "SUPPLIER"
+//   | "RESOURCE_MANAGER"
+//   | "DEPARTMENT_HEAD";
 
+import { JSX } from "react";
+import {
+  AlertCircle,
+  Ban,
+  BellRing,
+  CheckCircle2,
+  Info,
+  ServerCog,
+  TriangleAlert,
+  Truck,
+  Wrench,
+  XCircle,
+} from "lucide-react";
 import { z } from "zod";
 
 // User Roles
@@ -100,6 +113,7 @@ export type User = {
   userNumber: string;
   password: string;
   role: UserRole[];
+  department: Department;
 };
 
 export type Department = {
@@ -206,11 +220,40 @@ export type ProposalProduct = {
   proposal: Proposal;
 };
 
+export enum NotificationType {
+  INFO = "INFO",
+  ACTION_REQUIRED = "ACTION_REQUIRED",
+  ALERT = "ALERT",
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
+  REJECTION = "REJECTION",
+  WARNING = "WARNING",
+  SYSTEM = "SYSTEM",
+  DELIVERY = "DELIVERY",
+  MAINTENANCE = "MAINTENANCE",
+}
+
+export const notificationTypeIcons: {
+  [key in NotificationType]: JSX.Element;
+} = {
+  INFO: <Info className="text-blue-500" />,
+  ACTION_REQUIRED: <AlertCircle className="text-yellow-500" />,
+  ALERT: <BellRing className="text-orange-500" />,
+  SUCCESS: <CheckCircle2 className="text-green-600" />,
+  ERROR: <XCircle className="text-red-600" />,
+  REJECTION: <Ban className="text-red-500" />,
+  WARNING: <TriangleAlert className="text-yellow-600" />,
+  SYSTEM: <ServerCog className="text-gray-700" />,
+  DELIVERY: <Truck className="text-indigo-600" />,
+  MAINTENANCE: <Wrench className="text-amber-700" />,
+};
+
 export type Notification = {
   id: string;
   message: string;
   sentDate: string;
   seen: boolean;
-  to: UserRole;
-  user: User;
-}
+  type: NotificationType;
+  sender: User;
+  receiver: User;
+};

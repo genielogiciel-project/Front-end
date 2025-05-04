@@ -1,17 +1,22 @@
 // hooks/useRequestApi.ts
 import { useAPI } from "@/api";
+import { useAppSelector } from "@/lib/store";
 import { RequestedProduct, ResourceRequest } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export const useGetAllRequests = () => {
   const api = useAPI();
+  const { user } = useAppSelector((state) => state.auth);
 
   return useQuery({
     queryKey: ["requests"],
     queryFn: async () => {
       try {
-        const { data } = await api.get<ResourceRequest[]>("/resource-request");
+        const { data } = await api.post<ResourceRequest[]>(
+          "/resource-request/all",
+          user
+        );
 
         // Convertir specs string -> object
         data.forEach((request) => {
@@ -38,32 +43,32 @@ export const useGetAllRequests = () => {
   });
 };
 
-export function useGetAllProductsByRequestStatus(status: string) {
-  const api = useAPI();
-  const queryClient = useQueryClient();
+// export function useGetAllProductsByRequestStatus(status: string) {
+//   const api = useAPI();
+//   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["resourceRequests", status],
-    });
-  }, [queryClient, status]);
+//   useEffect(() => {
+//     queryClient.invalidateQueries({
+//       queryKey: ["resourceRequests", status],
+//     });
+//   }, [queryClient, status]);
 
-  return useQuery({
-    queryKey: ["resourceRequests", status],
-    queryFn: async () => {
-      try {
-        const { data } = await api.get<RequestedProduct[]>(
-          `/resource-request/by-status/${status}`
-        );
-        return data;
-      } catch (error) {
-        console.error("Error fetching products by status:", error);
-        throw error;
-      }
-    },
-    staleTime: Infinity,
-  });
-}
+//   return useQuery({
+//     queryKey: ["resourceRequests", status],
+//     queryFn: async () => {
+//       try {
+//         const { data } = await api.get<RequestedProduct[]>(
+//           `/resource-request/by-status/${status}`
+//         );
+//         return data;
+//       } catch (error) {
+//         console.error("Error fetching products by status:", error);
+//         throw error;
+//       }
+//     },
+//     staleTime: Infinity,
+//   });
+// }
 
 export const useCreateRequest = () => {
   const api = useAPI();

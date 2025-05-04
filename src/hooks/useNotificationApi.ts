@@ -14,14 +14,29 @@ export const useGetAllNotifications = () => {
   });
 };
 
-export const useGetAllNotificationsByRole = (role: string) => {
+export const useGetAllNotificationsByUser = (userId: string) => {
   const api = useAPI();
 
   return useQuery<Notification[]>({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const { data } = await api.get(`/notification/by-s/${role}`);
+      const { data } = await api.get(`/notification/user/${userId}`);
       return data;
+    },
+  });
+};
+
+export const useReadNotification = () => {
+  const api = useAPI();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.put(`/notification/${id}/read`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };

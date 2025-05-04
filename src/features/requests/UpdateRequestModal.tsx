@@ -19,11 +19,17 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { RequestStatus, ResourceRequest, ResourceType } from "@/lib/types";
+import {
+  RequestStatus,
+  ResourceRequest,
+  ResourceType,
+  UserRole,
+} from "@/lib/types";
 import { useUpdateRequest } from "@/hooks/useRequestApi";
 import { useGetAllDepartments } from "@/hooks/useDepartmentApi";
 import { useToast } from "@/hooks/use-toast";
 import { useAppSelector } from "@/lib/store";
+import { CheckRole } from "@/lib/CheckRole";
 
 interface UpdateRequestModalProps {
   open: boolean;
@@ -65,6 +71,7 @@ export function UpdateRequestModal({
   //   request.justification || ""
   // );
   const [requestedProducts, setRequestedProducts] = useState<Product[]>(
+    // @ts-expect-error
     request.requestedProducts.map((product) => {
       const specs = product.specifications;
 
@@ -97,7 +104,9 @@ export function UpdateRequestModal({
 
   const handleAddProduct = () => {
     setRequestedProducts([
+      // @ts-expect-error
       ...requestedProducts,
+      // @ts-expect-error
       {
         type: ResourceType.COMPUTER,
         brand: "",
@@ -246,6 +255,7 @@ export function UpdateRequestModal({
     };
 
     updateRequest(
+      // @ts-expect-error
       { id: request.id, updatedData: requestData },
       {
         onSuccess: () => {
@@ -286,7 +296,13 @@ export function UpdateRequestModal({
               <Select
                 value={departmentId}
                 onValueChange={setDepartmentId}
-                disabled={isPending}
+                disabled={
+                  CheckRole(
+                    user?.role!,
+                    [UserRole.TEACHER, UserRole.DEPARTMENT_HEAD],
+                    true
+                  ) || isPending
+                }
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Sélectionnez un département" />
@@ -301,30 +317,34 @@ export function UpdateRequestModal({
               </Select>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="status" className="text-right">
-                Statut
-              </label>
-              <Select
-                value={status}
-                onValueChange={(value) => setStatus(value as RequestStatus)}
-                disabled={isPending}
-              >
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez un statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={RequestStatus.SUBMITTED}>
-                    Soumis
-                  </SelectItem>
-                  <SelectItem value={RequestStatus.VALIDATED}>
-                    Validé
-                  </SelectItem>
-                  <SelectItem value={RequestStatus.REJECTED}>Rejeté</SelectItem>
-                  <SelectItem value={RequestStatus.SENT}>Envoyé</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {CheckRole(user?.role!, [UserRole.DEPARTMENT_HEAD]) && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="status" className="text-right">
+                  Statut
+                </label>
+                <Select
+                  value={status}
+                  onValueChange={(value) => setStatus(value as RequestStatus)}
+                  disabled={isPending}
+                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Sélectionnez un statut" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={RequestStatus.SUBMITTED}>
+                      Soumis
+                    </SelectItem>
+                    <SelectItem value={RequestStatus.VALIDATED}>
+                      Validé
+                    </SelectItem>
+                    <SelectItem value={RequestStatus.REJECTED}>
+                      Rejeté
+                    </SelectItem>
+                    {/* <SelectItem value={RequestStatus.SENT}>Envoyé</SelectItem> */}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="justification" className="text-right">
