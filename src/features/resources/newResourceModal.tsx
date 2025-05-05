@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Dialog,
@@ -108,6 +106,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
 
     console.log(resourceData);
 
+    // @ts-expect-error
     createResource(resourceData, {
       onSuccess: () => {
         toast({

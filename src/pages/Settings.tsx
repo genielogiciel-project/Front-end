@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, Bell, Shield, Building, Mail } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 export default function Settings() {
   const [emailNotifications, setEmailNotifications] = useState(true);

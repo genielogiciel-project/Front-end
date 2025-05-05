@@ -20,7 +20,7 @@ import { gsap } from "gsap";
 export default function Dashboard() {
   const { user } = useAppSelector((state) => state.auth);
   const { resources } = useAppSelector((state) => state.resources);
-  const { requests } = useAppSelector((state) => state.requests);
+  const requests: any = [];
   const { requests: maintenanceRequests } = useAppSelector(
     (state) => state.maintenance
   );
@@ -56,10 +56,10 @@ export default function Dashboard() {
 
   const totalRequests = requests.length;
   const pendingRequests = requests.filter(
-    (r) => r.status === RequestStatus.SUBMITTED
+    (r: any) => r.status === RequestStatus.SUBMITTED
   ).length;
   const approvedRequests = requests.filter(
-    (r) => r.status === RequestStatus.VALIDATED
+    (r: any) => r.status === RequestStatus.VALIDATED
   ).length;
 
   const totalMaintenanceRequests = maintenanceRequests.length;
@@ -90,7 +90,7 @@ export default function Dashboard() {
   const requestStatusData = [
     {
       name: "Brouillon",
-      value: requests.filter((r) => r.status === RequestStatus.SUBMITTED)
+      value: requests.filter((r: any) => r.status === RequestStatus.SUBMITTED)
         .length,
       color: "#94a3b8",
     },
@@ -98,12 +98,12 @@ export default function Dashboard() {
     { name: "Approuvé", value: approvedRequests, color: "#22c55e" },
     {
       name: "Livré",
-      value: requests.filter((r) => r.status === RequestStatus.SENT).length,
+      value: requests.filter((r: any) => r.status === RequestStatus.SENT).length,
       color: "#10b981",
     },
     {
       name: "Rejeté",
-      value: requests.filter((r) => r.status === RequestStatus.REJECTED).length,
+      value: requests.filter((r: any) => r.status === RequestStatus.REJECTED).length,
       color: "#ef4444",
     },
   ];

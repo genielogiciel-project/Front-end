@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ResourceType, ResourceStatus, Resource, UserRole } from "@/lib/types";
+import { ResourceType, ResourceStatus, UserRole } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,

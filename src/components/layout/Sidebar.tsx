@@ -7,7 +7,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  Settings,
   AlertTriangle,
   ClipboardList,
   LogOut,

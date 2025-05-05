@@ -46,9 +46,9 @@ const maintenanceSlice = createSlice({
 
       state.filteredRequests = state.requests.filter((r) => {
         return (
-          (!resourceId || r.resourceId === resourceId) &&
+          (!resourceId || r.resource.id === resourceId) &&
           (!status || r.status === status) &&
-          (!technicianId || r.technicianId === technicianId)
+          (!technicianId || r.teacher.id === technicianId)
         );
       });
     },
@@ -80,7 +80,7 @@ const maintenanceSlice = createSlice({
       const { requestId, technicianId } = action.payload;
       const target = state.requests.find((r) => r.id === requestId);
       if (target) {
-        target.technicianId = technicianId;
+        target.teacher.id = technicianId;
         target.status = PanicReportStatus.IN_PROGRESS;
       }
     },
@@ -93,7 +93,7 @@ const maintenanceSlice = createSlice({
       if (target) {
         target.status = PanicReportStatus.RESOLVED;
         target.resolution = resolution;
-        target.resolvedAt = new Date().toISOString();
+        target.resolvedAt = new Date(new Date().toLocaleDateString());
       }
     },
     returnToSupplier: (
@@ -103,7 +103,7 @@ const maintenanceSlice = createSlice({
       const { requestId, reason } = action.payload;
       const target = state.requests.find((r) => r.id === requestId);
       if (target) {
-        target.status = PanicReportStatus.RETURNED_TO_SUPPLIER;
+        target.status = PanicReportStatus.CLOSED;
         target.resolution = reason;
       }
     },

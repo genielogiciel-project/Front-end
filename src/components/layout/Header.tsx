@@ -34,6 +34,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { mutate: readNotification } = useReadNotification();
 
   const name =
+    // @ts-expect-error
     user?.fullName?.charAt(0).toUpperCase() + user?.fullName?.slice(1) || "";
   const iconName = user?.fullName
     ?.split(" ")

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAppSelector } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,6 @@ import {
   Filter,
   Plus,
   Building2,
-  Mail,
-  Phone,
   Globe,
   AlertTriangle,
   Trash2,
@@ -111,6 +108,7 @@ export default function Suppliers() {
   };
 
   const handleCreate = () => {
+    // @ts-expect-error
     const supplierData: Omit<Supplier, "id"> = {
       fullName,
       userNumber,

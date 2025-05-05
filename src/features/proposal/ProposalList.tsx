@@ -183,8 +183,6 @@
 //   );
 // }
 
-"use client";
-
 import { CallForTender, Proposal, UserRole } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -199,7 +197,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Check, Download, Printer } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { CheckRole } from "@/lib/CheckRole";
@@ -338,7 +336,10 @@ export function ProposalsList({
                 >
                   <TableCell>
                     <Button
-                      disabled={tender.open === false || !CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER])}
+                      disabled={
+                        tender.open === false ||
+                        !CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER])
+                      }
                       variant="outline"
                       size="icon"
                       className="h-8 w-8"

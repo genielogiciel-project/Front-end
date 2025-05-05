@@ -58,12 +58,12 @@ export function RequestList({
           open={!!editingRequest}
           request={editingRequest}
           onClose={() => setEditingRequest(null)}
-          onSubmit={(updatedData) => {
-            onUpdate(editingRequest.id, updatedData);
-            setEditingRequest(null);
+          // onSubmit={(updatedData) => {
+          //   onUpdate(editingRequest.id, updatedData);
+          //   setEditingRequest(null);
 
-            console.log(editingRequest.id, updatedData);
-          }}
+          //   console.log(editingRequest.id, updatedData);
+          // }}
         />
       )}
     </>

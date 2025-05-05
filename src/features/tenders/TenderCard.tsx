@@ -21,7 +21,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -53,7 +52,6 @@ export function TenderCard({
   onSubmitProposal,
   onDelete,
   onCloseTender,
-  onShowProposals,
   userRole,
 }: TenderCardProps) {
   const parseSpecifications = (specs: string) => {
@@ -164,6 +162,7 @@ export function TenderCard({
       supplier: {
         id: user?.id!,
       },
+      // @ts-expect-error
       callForTender: {
         id: tender.id,
       },

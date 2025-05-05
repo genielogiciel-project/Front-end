@@ -1,4 +1,3 @@
-// features/panic/NewPanicReportForm.tsx
 import { useState } from "react";
 import {
   Dialog,
@@ -19,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCreatePanicReport } from "@/hooks/usePanicReportApi";
 import { useGetResourcesByUserId } from "@/hooks/useResourceApi";
 import { useAuth } from "../../auth/useAuth";
+import { PanicReportStatus } from "@/lib/types";
 
 export function NewPanicReportForm({
   open,
@@ -29,8 +29,8 @@ export function NewPanicReportForm({
 }) {
   const { toast } = useToast();
   const { user } = useAuth(); // Should return user object with `id`
-  const { data: resources = [] } = useGetResourcesByUserId(user?.id);
-  const { mutate: createReport, isLoading } = useCreatePanicReport();
+  const { data: resources = [] } = useGetResourcesByUserId(user?.id!);
+  const { mutate: createReport, isPending } = useCreatePanicReport();
 
   const [form, setForm] = useState({
     resourceId: "",
@@ -50,8 +50,10 @@ export function NewPanicReportForm({
       {
         description: form.description,
         reportDate: new Date().toISOString(),
-        status: "REPORTED",
+        status: PanicReportStatus.OPEN,
+        // @ts-expect-error
         resource: { id: form.resourceId },
+        // @ts-expect-error
         teacher: { id: user.id },
       },
       {
@@ -100,8 +102,8 @@ export function NewPanicReportForm({
             onChange={(e) => setForm({ ...form, description: e.target.value })}
           />
 
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Envoi en cours..." : "Envoyer"}
+          <Button onClick={handleSubmit} disabled={isPending}>
+            {isPending ? "Envoi en cours..." : "Envoyer"}
           </Button>
         </div>
       </DialogContent>

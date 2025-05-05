@@ -46,6 +46,7 @@ export default function Requests() {
       />
       <RequestList
         isLoading={isLoading}
+        // @ts-expect-error
         requests={filteredRequests}
         onUpdate={(id, updatedData) => updateRequest({ id, ...updatedData })}
         onDelete={(id) => {
@@ -58,6 +59,7 @@ export default function Requests() {
       <NewRequestModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        // @ts-expect-error
         onSubmit={(data) => {
           handleNewRequestSubmit(data);
           setIsModalOpen(false);

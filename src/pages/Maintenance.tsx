@@ -40,7 +40,7 @@ export default function Maintenance() {
   const filteredRequests = maintenanceRecords.filter((request) => {
     const matchesSearch =
       request.details.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.panicReport?.resourceId
+      request.panicReport?.resource?.id
         ?.toLowerCase()
         ?.includes(searchQuery.toLowerCase());
     const matchesStatus =
@@ -50,13 +50,13 @@ export default function Maintenance() {
 
   const getStatusIcon = (status: PanicReportStatus) => {
     switch (status) {
-      case PanicReportStatus.REPORTED:
+      case PanicReportStatus.OPEN:
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
       case PanicReportStatus.IN_PROGRESS:
         return <Clock className="h-5 w-5 text-blue-500" />;
       case PanicReportStatus.RESOLVED:
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case PanicReportStatus.RETURNED_TO_SUPPLIER:
+      case PanicReportStatus.CLOSED:
         return <ArrowLeftRight className="h-5 w-5 text-purple-500" />;
       default:
         return null;
@@ -110,13 +110,13 @@ export default function Maintenance() {
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  {getStatusIcon(request.panicReport?.status)}
+                  {getStatusIcon(request.panicReport?.status!)}
                   <div>
                     <CardTitle className="text-lg">
                       Maintenance #{request.id}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Ressource: {request.panicReport?.resourceId}
+                      Ressource: {request.panicReport?.resource?.id}
                     </p>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export default function Maintenance() {
                           PanicReportStatus.IN_PROGRESS
                         ? "bg-blue-100 text-blue-800"
                         : request.panicReport?.status ===
-                            PanicReportStatus.RETURNED_TO_SUPPLIER
+                            PanicReportStatus.CLOSED
                           ? "bg-purple-100 text-purple-800"
                           : "bg-yellow-100 text-yellow-800"
                   }`}
@@ -151,7 +151,7 @@ export default function Maintenance() {
                   <div>
                     <h4 className="font-medium mb-1">Technicien:</h4>
                     <p className="text-sm text-muted-foreground">
-                      {request.technician?.name}
+                      {request.technician?.fullName}
                     </p>
                   </div>
                   <div>

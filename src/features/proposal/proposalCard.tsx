@@ -1,7 +1,5 @@
-"use client";
-
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -53,9 +51,9 @@ export function ProposalCard({ proposal, onSubmit }: ProposalCardProps) {
         onClick={() => setOpen(true)}
       >
         <div>
-          <CardTitle className="text-lg">{proposal.tender.title}</CardTitle>
+          <CardTitle className="text-lg">{proposal.callForTender.title}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Fournisseur : {proposal.supplier.name}
+            Fournisseur : {proposal.supplier.fullName}
           </p>
         </div>
         <Pencil className="w-4 h-4 text-muted-foreground" />
@@ -85,7 +83,7 @@ export function ProposalCard({ proposal, onSubmit }: ProposalCardProps) {
               <tbody>
                 {products.map((p, index) => (
                   <tr key={p.id} className="border-b">
-                    <td className="p-2">{p.resourceType}</td>
+                    <td className="p-2">{p.type}</td>
                     <td className="p-2">{p.brand}</td>
                     <td className="p-2">{p.quantity}</td>
                     <td className="p-2">

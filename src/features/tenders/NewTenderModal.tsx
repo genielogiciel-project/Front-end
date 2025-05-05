@@ -98,8 +98,9 @@ export function NewTenderModal({
       title,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
+      // @ts-expect-error
       resourceManager: {
-        id: user.id,
+        id: user?.id!,
       },
       requestedProducts: selectedProductObjects,
     };

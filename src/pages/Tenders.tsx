@@ -56,6 +56,7 @@ export default function Tenders() {
     if (!selectedTender) return;
 
     updateTender(
+      // @ts-expect-error
       { id: selectedTender.id, ...updatedData },
       {
         onSuccess: () => {

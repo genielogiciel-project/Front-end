@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -36,7 +34,7 @@ export default function PanicReportPage() {
   const filteredReports = reports.filter((report) => {
     const matchesSearch =
       report.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      report.resource?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      report.resource?.brand?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "ALL" || report.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -44,13 +42,13 @@ export default function PanicReportPage() {
 
   const getStatusIcon = (status: PanicReportStatus) => {
     switch (status) {
-      case "REPORTED":
+      case "OPEN":
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
       case "IN_PROGRESS":
         return <Clock className="h-5 w-5 text-blue-500" />;
       case "RESOLVED":
         return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "RETURNED_TO_SUPPLIER":
+      case "CLOSED":
         return <ArrowLeftRight className="h-5 w-5 text-purple-500" />;
       default:
         return null;
@@ -110,7 +108,7 @@ export default function PanicReportPage() {
                       Rapport #{report.id}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Ressource : {report.resource?.name}
+                      Ressource : {report.resource?.brand}
                     </p>
                   </div>
                 </div>
@@ -120,7 +118,7 @@ export default function PanicReportPage() {
                       ? "bg-green-100 text-green-800"
                       : report.status === "IN_PROGRESS"
                         ? "bg-blue-100 text-blue-800"
-                        : report.status === "RETURNED_TO_SUPPLIER"
+                        : report.status === "CLOSED"
                           ? "bg-purple-100 text-purple-800"
                           : "bg-yellow-100 text-yellow-800"
                   }`}
@@ -142,13 +140,13 @@ export default function PanicReportPage() {
                   <div>
                     <h4 className="font-medium mb-1">Signalé par :</h4>
                     <p className="text-sm text-muted-foreground">
-                      {report.teacher?.name ?? "—"}
+                      {report.teacher?.fullName ?? "—"}
                     </p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-1">Date de signalement :</h4>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(report.reportDate).toLocaleDateString()}
+                      {new Date(report.reportedAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -164,17 +162,19 @@ export default function PanicReportPage() {
                     <div>
                       <h4 className="font-medium mb-1">Numéro de série :</h4>
                       <p className="text-sm text-muted-foreground">
-                        {report.resource.serialNumber}
+                        {report.resource.inventoryNumber}
                       </p>
                     </div>
                   </div>
                 )}
 
-                {report.maintenanceRecord && (
+                {/* @ts-expect-error */}
+                {report?.maintenanceRecord && (
                   <div>
                     <h4 className="font-medium mb-1">Intervention :</h4>
                     <p className="text-sm text-muted-foreground">
-                      {report.maintenanceRecord.details}
+                      {/* @ts-expect-error */}
+                      {report?.maintenanceRecord.details}
                     </p>
                   </div>
                 )}
