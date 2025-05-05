@@ -205,15 +205,17 @@ export type MaintenanceRecord = {
 export type Proposal = {
   id: string;
   deliveryDate: Date;
+  warranty: number;
   proposalProducts: ProposalProduct[];
   totalPrice: number;
-  tender: CallForTender;
+  callForTender: CallForTender;
   supplier: Supplier;
+  accepted: boolean;
 };
 
 export type ProposalProduct = {
   id: string;
-  resourceType: ResourceType;
+  type: ResourceType;
   brand: string;
   quantity: number;
   unitPrice: number;

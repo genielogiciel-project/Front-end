@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CallForTender } from "@/lib/types";
+import { Label } from "@/components/ui/label";
 
 interface UpdateTenderModalProps {
   tender: CallForTender | null;
@@ -34,8 +35,8 @@ export function UpdateTenderModal({
   useEffect(() => {
     if (tender) {
       setTitle(tender.title);
-      setStartDate(new Date(tender.startDate).toLocaleDateString());
-      setEndDate(new Date(tender.endDate).toLocaleDateString());
+      setStartDate(new Date(tender.startDate).toISOString().split("T")[0]);
+      setEndDate(new Date(tender.endDate).toISOString().split("T")[0]);
       setOpenStatus(tender.open);
     }
   }, [tender]);
@@ -82,20 +83,32 @@ export function UpdateTenderModal({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          <Label className="text-sm" htmlFor="title">
+            Titre
+          </Label>
           <Input
+            id="title"
             placeholder="Titre"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
 
           <div className="grid grid-cols-2 gap-4">
+            <Label className="text-sm" htmlFor="startDate">
+              Date de début
+            </Label>
+            <Label className="text-sm" htmlFor="endDate">
+              Date de fin
+            </Label>
             <Input
+              id="startDate"
               type="date"
               placeholder="Date de début"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
             <Input
+              id="endDate"
               type="date"
               placeholder="Date de fin"
               value={endDate}
@@ -103,7 +116,7 @@ export function UpdateTenderModal({
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <input
               type="checkbox"
               id="openStatus"
@@ -112,7 +125,7 @@ export function UpdateTenderModal({
               className="h-4 w-4"
             />
             <label htmlFor="openStatus">Appel d'offre ouvert</label>
-          </div>
+          </div> */}
 
           <div>
             <h4 className="font-medium mb-2">Produits inclus:</h4>
@@ -149,25 +162,45 @@ export function UpdateTenderModal({
             </div>
           </div>
 
-          {tender?.proposals && tender.proposals.length > 0 && (
+          {/* {tender?.proposals && tender.proposals.length > 0 && (
             <div>
               <h4 className="font-medium mb-2">Propositions reçues:</h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {tender.proposals.map((proposal) => (
                   <div key={proposal.id} className="text-sm border rounded p-3">
-                    <p className="font-medium">
-                      Fournisseur: {proposal.supplier.fullName}
-                    </p>
-                    <p>
-                      Date de livraison:{" "}
-                      {new Date(proposal.deliveryDate).toLocaleDateString()}
-                    </p>
-                    <p>Prix total: {proposal.totalPrice} €</p>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-medium">
+                          Fournisseur: {proposal.supplier.fullName}
+                        </p>
+                        <p className="text-muted-foreground">
+                          Date de livraison:{" "}
+                          {new Date(proposal.deliveryDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <p className="font-bold text-lg">
+                        {proposal.totalPrice.toFixed(2)} €
+                      </p>
+                    </div>
+
+                    <div className="mt-2 space-y-2">
+                      {proposal.proposalProducts.map((product, idx) => (
+                        <div key={idx} className="pl-2 border-l-2">
+                          <p>
+                            {product.quantity}x {product.brand}{" "}
+                            {product.type}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {product.unitPrice.toFixed(2)} €/unité
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         <DialogFooter>

@@ -20,7 +20,7 @@ export const useCreateSupplier = () => {
 
   return useMutation({
     mutationFn: async (newSupplier: Omit<Supplier, "id">) => {
-      const { data } = await api.post("/supplier", newSupplier);
+      const { data } = await api.post("/supplier/register", newSupplier);
       return data;
     },
     onSuccess: () => {

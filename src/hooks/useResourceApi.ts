@@ -1,14 +1,17 @@
 import { useAPI } from "@/api";
-import { Resource, ResourceType } from "@/lib/types";
+import { useAppSelector } from "@/lib/store";
+import { Resource } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllResources = () => {
   const api = useAPI();
+  const { user } = useAppSelector((state) => state.auth);
 
+  const userId = user?.id;
   return useQuery<Resource[]>({
     queryKey: ["resources"],
     queryFn: async () => {
-      const { data } = await api.get("/resources");
+      const { data } = await api.get(`/resources/user/${userId}`);
       return data;
     },
   });

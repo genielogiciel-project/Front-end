@@ -6,5 +6,5 @@ export const CheckRole = (
   excludeSuperAdmin = false
 ) => {
   !excludeSuperAdmin && permissions.push(UserRole.SUPER_ADMIN);
-  return userRoles.some((role) => permissions.includes(role));
+  return userRoles?.some((role) => permissions.includes(role));
 };

@@ -249,7 +249,7 @@ export function UpdateRequestModal({
       status,
       createdAt: request.createdAt,
       teacher: {
-        id: user?.id,
+        id: request.teacher.id,
       },
     };
 
@@ -274,6 +274,8 @@ export function UpdateRequestModal({
         },
       }
     );
+    // console.log("Updating request:", requestData);
+    // console.log("Request:", request);
   };
 
   return (

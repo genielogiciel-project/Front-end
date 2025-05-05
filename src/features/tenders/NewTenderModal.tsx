@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { CallForTender, RequestedProduct } from "@/lib/types";
 import { useAppSelector } from "@/lib/store";
+import { Label } from "@/components/ui/label";
 
 interface NewTenderModalProps {
   open: boolean;
@@ -95,14 +96,15 @@ export function NewTenderModal({
 
     const newTender: Omit<CallForTender, "id"> = {
       title,
-      requestedProducts: selectedProductObjects,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
-      open: true,
       resourceManager: {
         id: user.id,
       },
+      requestedProducts: selectedProductObjects,
     };
+
+    // console.log(newTender);
 
     onSubmit(newTender);
     setTitle("");
@@ -126,21 +128,28 @@ export function NewTenderModal({
           <DialogTitle>Créer un nouvel Appel d'Offre</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex flex-col">
+          <Label htmlFor="title">Titre de l'appel d'offre</Label>
           <Input
+            id="title"
             placeholder="Titre de l'appel d'offre"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
 
           <div className="grid grid-cols-2 gap-4">
+            <Label htmlFor="start-date">Date de début</Label>
+            <Label htmlFor="end-date">Date de fin</Label>
+
             <Input
+              id="start-date"
               type="date"
               placeholder="Date de début"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
             <Input
+              id="end-date"
               type="date"
               placeholder="Date de fin"
               value={endDate}

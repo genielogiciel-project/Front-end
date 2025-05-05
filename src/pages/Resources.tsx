@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ResourceType, ResourceStatus, Resource } from "@/lib/types";
+import { ResourceType, ResourceStatus, Resource, UserRole } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,10 +44,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { CheckRole } from "@/lib/CheckRole";
+import { TenderSkeleton } from "@/features/tenders/TenderSkeleton";
+import { useAppSelector } from "@/lib/store";
+import Masonry from "react-masonry-css";
 
 export default function Resources() {
   const { toast } = useToast();
-  const { data: resources } = useGetAllResources();
+  const { user } = useAppSelector((state) => state.auth);
+  const { data: resources, isLoading } = useGetAllResources();
   const { mutate: deleteResource } = useDeleteResource();
   const { mutate: updateResource } = useUpdateResource();
 
@@ -114,14 +119,26 @@ export default function Resources() {
     });
   };
 
+  // if (isLoading) {
+  //   return (
+  //     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+  //       {[...Array(9)].map((_, i) => (
+  //         <TenderSkeleton key={i} />
+  //       ))}
+  //     </div>
+  //   );
+  // }
+
   return (
     <div className="space-y-6">
       {/* Create Modal */}
-      <NewResourceModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        // onSuccess={refetch}
-      />
+      {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) && (
+        <NewResourceModal
+          open={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          // onSuccess={refetch}
+        />
+      )}
 
       {/* Update Modal */}
       {selectedResource && (
@@ -158,10 +175,12 @@ export default function Resources() {
       {/* Header and Filters */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Ressources</h1>
-        <Button onClick={() => setIsCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Ajouter une ressource
-        </Button>
+        {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) && (
+          <Button onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Ajouter une ressource
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-4 items-center">
@@ -216,147 +235,172 @@ export default function Resources() {
       </div>
 
       {/* Resources Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredResources?.map((resource) => {
-          const specs =
-            typeof resource.specifications === "string"
-              ? JSON.parse(resource.specifications)
-              : resource.specifications;
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
+        {isLoading
+          ? [...Array(9)].map((_, i) => <TenderSkeleton key={i} />)
+          : filteredResources?.map((resource) => {
+              const specs =
+                typeof resource.specifications === "string"
+                  ? JSON.parse(resource.specifications)
+                  : resource.specifications;
 
-          return (
-            <Card
-              key={resource.id}
-              className="hover:shadow-lg transition-shadow relative"
-            >
-              {/* Action Buttons */}
-              <div className="absolute top-2 right-2 flex gap-2">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedResource(resource);
-                        setIsUpdateModalOpen(true);
-                      }}
-                    >
-                      <Edit className="mr-2 h-4 w-4" />
-                      Modifier
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        setSelectedResource(resource);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                      className="text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Supprimer
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-2">
-                    {resource.type === ResourceType.COMPUTER ? (
-                      <Monitor className="h-5 w-5" />
-                    ) : (
-                      <Printer className="h-5 w-5" />
+              return (
+                <Masonry
+                  breakpointCols={1}
+                  className="my-masonry-grid"
+                  columnClassName="my-masonry-grid_column"
+                  key={resource.id}
+                >
+                  <Card className="hover:shadow-lg transition-shadow relative ">
+                    {/* Action Buttons */}
+                    {CheckRole(user?.role!, [
+                      UserRole.RESOURCE_MANAGER,
+                      UserRole.DEPARTMENT_HEAD,
+                    ]) && (
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                              <span className="sr-only">Menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setSelectedResource(resource);
+                                setIsUpdateModalOpen(true);
+                              }}
+                            >
+                              <Edit className="mr-2 h-4 w-4" />
+                              Modifier
+                            </DropdownMenuItem>
+                            {CheckRole(user?.role!, [
+                              UserRole.RESOURCE_MANAGER,
+                            ]) && (
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedResource(resource);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Supprimer
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     )}
-                    <div>
-                      <CardTitle className="text-lg">
-                        {resource.inventoryNumber}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {resource.type === ResourceType.COMPUTER
-                          ? "Ordinateur"
-                          : "Imprimante"}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`px-3 mr-5 py-1 rounded-full text-sm ${
-                      resource.status === ResourceStatus.AVAILABLE
-                        ? "bg-green-100 text-green-800"
-                        : resource.status === ResourceStatus.MAINTENANCE
-                          ? "bg-yellow-100 text-yellow-800"
-                          : resource.status === ResourceStatus.DISPOSED
-                            ? "bg-red-100 text-red-800"
-                            : "bg-blue-100 text-blue-800"
-                    }`}
-                  >
-                    {resource.status}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div>
-                    <h4 className="text-sm font-medium">Spécifications:</h4>
-                    <div className="text-sm text-muted-foreground">
-                      {resource.type === ResourceType.COMPUTER ? (
-                        <>
-                          <p>Marque: {resource.brand}</p>
-                          <p>CPU: {specs.cpu}</p>
-                          <p>RAM: {specs.ram}</p>
-                          <p>Stockage: {specs.storage}</p>
-                          <p>Écran: {specs.screen}</p>
-                        </>
-                      ) : (
-                        <>
-                          <p>Marque: {resource.brand}</p>
-                          <p>Vitesse: {specs.speed}</p>
-                          <p>Résolution: {specs.resolution}</p>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {resource.department && (
-                    <div>
-                      <h4 className="text-sm font-medium">Département:</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {resource.department?.name || "Non affecté"}
-                      </p>
-                    </div>
-                  )}
-                  {resource.user && (
-                    <div>
-                      <h4 className="text-sm font-medium">Utilisateur:</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {resource.user?.fullName || "Non affecté"}
-                      </p>
-                    </div>
-                  )}
-                  <div>
-                    <h4 className="text-sm font-medium">Dates:</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Acquisition:{" "}
-                      {resource.acquisitionDate
-                        ? new Date(
-                            resource.acquisitionDate
-                          ).toLocaleDateString()
-                        : "Non spécifiée"}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Fin de garantie:{" "}
-                      {resource.warrantyEndDate
-                        ? new Date(
-                            resource.warrantyEndDate
-                          ).toLocaleDateString()
-                        : "Non spécifiée"}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          {resource.type === ResourceType.COMPUTER ? (
+                            <Monitor className="h-15 w-15" />
+                          ) : (
+                            <Printer className="h-15 w-15" />
+                          )}
+                          <div>
+                            <CardTitle className="text-lg">
+                              {resource.inventoryNumber}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                              {resource.type === ResourceType.COMPUTER
+                                ? "Ordinateur"
+                                : "Imprimante"}
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className={`px-3 mr-5 py-1 rounded-full text-sm ${
+                            resource.status === ResourceStatus.AVAILABLE
+                              ? "bg-green-100 text-green-800"
+                              : resource.status === ResourceStatus.MAINTENANCE
+                                ? "bg-yellow-100 text-yellow-800"
+                                : resource.status === ResourceStatus.DISPOSED
+                                  ? "bg-red-100 text-red-800"
+                                  : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {resource.status}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div>
+                          <h4 className="text-sm font-medium">
+                            Spécifications:
+                          </h4>
+                          <div className="text-sm text-muted-foreground">
+                            {resource.type === ResourceType.COMPUTER ? (
+                              <>
+                                <p>Marque: {resource.brand}</p>
+                                <p>CPU: {specs.cpu}</p>
+                                <p>RAM: {specs.ram}</p>
+                                <p>Stockage: {specs.storage}</p>
+                                <p>Écran: {specs.monitor}</p>
+                              </>
+                            ) : (
+                              <>
+                                <p>Marque: {resource.brand}</p>
+                                <p>Vitesse: {specs.printSpeed}</p>
+                                <p>Résolution: {specs.resolution}</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {resource.department && (
+                          <div>
+                            <h4 className="text-sm font-medium">
+                              Département:
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {resource.department?.name || "Non affecté"}
+                            </p>
+                          </div>
+                        )}
+                        {resource.user && (
+                          <div>
+                            <h4 className="text-sm font-medium">
+                              Utilisateur:
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {resource.user?.fullName || "Non affecté"}
+                            </p>
+                          </div>
+                        )}
+                        <div>
+                          <h4 className="text-sm font-medium">Dates:</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Acquisition:{" "}
+                            {resource.acquisitionDate
+                              ? new Date(
+                                  resource.acquisitionDate
+                                ).toLocaleDateString()
+                              : "Non spécifiée"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Fin de garantie:{" "}
+                            {resource.warrantyEndDate
+                              ? new Date(
+                                  resource.warrantyEndDate
+                                ).toLocaleDateString()
+                              : "Non spécifiée"}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Masonry>
+              );
+            })}
       </div>
     </div>
   );

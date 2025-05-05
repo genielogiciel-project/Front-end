@@ -19,6 +19,7 @@ import {
 import { ResourceRequest, ResourceType, UserRole } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckRole } from "@/lib/CheckRole";
+import { useAppSelector } from "@/lib/store";
 
 interface RequestCardProps {
   request: ResourceRequest;
@@ -28,12 +29,16 @@ interface RequestCardProps {
 
 export function RequestCard({ request, onUpdate, onDelete }: RequestCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  // const { user } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
   // const updateAndDeleteMenu = () => {
   //   if (CheckRole(user?.role!, [UserRole.DEPARTMENT_HEAD]))
   //     return true;
   //   return user?.id == request.teacher.id;
   // };
+
+  // console.log(
+  //   CheckRole(user?.role!, [UserRole.TEACHER, UserRole.DEPARTMENT_HEAD])
+  // );
 
   return (
     <Card className="h-full overflow-hidden transition-all duration-200 hover:shadow-md">
@@ -64,29 +69,33 @@ export function RequestCard({ request, onUpdate, onDelete }: RequestCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={request?.status} />
-            {CheckRole(request?.teacher?.role!, [
+            {CheckRole(user?.role!, [
               UserRole.TEACHER,
               UserRole.DEPARTMENT_HEAD,
-            ]) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="h-4 w-4" />
-                    <span className="sr-only">Menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={onUpdate}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onDelete} className="text-red-600">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Supprimer
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            ]) &&
+              request.status !== "SENT" && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                      <span className="sr-only">Menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={onUpdate}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Modifier
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={onDelete}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Supprimer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
           </div>
         </div>
       </CardHeader>

@@ -6,9 +6,9 @@ export const useGetAllProposals = () => {
   const api = useAPI();
 
   return useQuery<Proposal[]>({
-    queryKey: ["proposals"],
+    queryKey: ["proposal"],
     queryFn: async () => {
-      const { data } = await api.get("/proposals");
+      const { data } = await api.get("/proposal");
       return data;
     },
   });
@@ -20,11 +20,12 @@ export const useCreateProposal = () => {
 
   return useMutation({
     mutationFn: async (newProposal: Omit<Proposal, "id">) => {
-      const { data } = await api.post("/proposals", newProposal);
+      const { data } = await api.post("/proposal", newProposal);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["proposal"] });
+      queryClient.invalidateQueries({ queryKey: ["tenders"] });
     },
   });
 };
@@ -34,12 +35,18 @@ export const useUpdateProposal = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<Proposal> }) => {
-      const { data } = await api.put(`/proposals/${id}`, updatedData);
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: string;
+      updatedData: Partial<Proposal>;
+    }) => {
+      const { data } = await api.put(`/proposal/${id}`, updatedData);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["proposal"] });
     },
   });
 };
@@ -50,11 +57,39 @@ export const useDeleteProposal = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await api.delete(`/proposals/${id}`);
+      const { data } = await api.delete(`/proposal/${id}`);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["proposals"] });
+      queryClient.invalidateQueries({ queryKey: ["proposal"] });
+    },
+  });
+};
+
+export const useAcceptRefuseProposals = () => {
+  const api = useAPI();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      resManagerId,
+      selectedId,
+      rejectedIds,
+    }: {
+      resManagerId: string;
+      selectedId: string;
+      rejectedIds: string[];
+    }) => {
+      const { data } = await api.put(
+        `/proposal/${selectedId}/accepted-refused/${resManagerId}`,
+        rejectedIds
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["proposal"] });
+      queryClient.invalidateQueries({ queryKey: ["tenders"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };

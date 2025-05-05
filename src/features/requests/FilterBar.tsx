@@ -7,7 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RequestStatus } from "@/lib/types";
+import { RequestStatus, UserRole } from "@/lib/types";
+import { useAppSelector } from "@/lib/store";
+import { CheckRole } from "@/lib/CheckRole";
 
 interface FilterBarProps {
   searchQuery: string;
@@ -22,6 +24,7 @@ export function FilterBar({
   statusFilter,
   onStatusChange,
 }: FilterBarProps) {
+  const { user } = useAppSelector((state) => state.auth);
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
       <div className="relative flex-1">
@@ -33,25 +36,27 @@ export function FilterBar({
           className="pl-8"
         />
       </div>
-      <Select
-        value={statusFilter}
-        onValueChange={(value) =>
-          onStatusChange(value as RequestStatus | "ALL")
-        }
-      >
-        <SelectTrigger className="w-full sm:w-[200px]">
-          <Filter className="mr-2 h-4 w-4" />
-          <SelectValue placeholder="Filtrer par statut" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="ALL">Tous les statuts</SelectItem>
-          {Object.values(RequestStatus).map((status) => (
-            <SelectItem key={status} value={status}>
-              {status}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {CheckRole(user?.role!, [UserRole.TEACHER, UserRole.DEPARTMENT_HEAD]) && (
+        <Select
+          value={statusFilter}
+          onValueChange={(value) =>
+            onStatusChange(value as RequestStatus | "ALL")
+          }
+        >
+          <SelectTrigger className="w-full sm:w-[200px]">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Filtrer par statut" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Tous les statuts</SelectItem>
+            {Object.values(RequestStatus).map((status) => (
+              <SelectItem key={status} value={status}>
+                {status}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

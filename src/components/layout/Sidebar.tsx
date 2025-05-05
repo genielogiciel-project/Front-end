@@ -58,7 +58,7 @@ const navigation = [
     name: "Ressources",
     href: "/resources",
     icon: Package,
-    roles: [UserRole.RESOURCE_MANAGER, UserRole.DEPARTMENT_HEAD],
+    roles: [UserRole.RESOURCE_MANAGER, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
   },
   {
     name: "Rapports de panne",

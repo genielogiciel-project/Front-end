@@ -18,10 +18,10 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { ResourceType, ResourceStatus, Resource } from "@/lib/types";
+import { ResourceType, ResourceStatus, Resource, UserRole } from "@/lib/types";
 import { useGetAllDepartments } from "@/hooks/useDepartmentApi";
 import { useGetAllSuppliers } from "@/hooks/useSupplierApi";
-import { useGetAllTeachers, useGetAllUsers } from "@/hooks/useUserApi";
+import { useGetAllTeachers } from "@/hooks/useUserApi";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
@@ -32,6 +32,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { CheckRole } from "@/lib/CheckRole";
+import { useAppSelector } from "@/lib/store";
 
 interface UpdateResourceModalProps {
   open: boolean;
@@ -47,6 +49,7 @@ export function UpdateResourceModal({
   onSubmit,
 }: UpdateResourceModalProps) {
   const { toast } = useToast();
+  const { user } = useAppSelector((state) => state.auth);
   const { data: departments = [] } = useGetAllDepartments();
   const { data: suppliers = [] } = useGetAllSuppliers();
   const { data: teachers = [] } = useGetAllTeachers();
@@ -80,10 +83,10 @@ export function UpdateResourceModal({
   const [cpu, setCpu] = useState(initialSpecs.cpu || "");
   const [ram, setRam] = useState(initialSpecs.ram || "");
   const [storage, setStorage] = useState(initialSpecs.storage || "");
-  const [screen, setScreen] = useState(initialSpecs.screen || "");
+  const [screen, setScreen] = useState(initialSpecs.monitor || "");
 
   // Printer specific fields
-  const [speed, setSpeed] = useState(initialSpecs.speed || "");
+  const [printSpeed, setPrintSpeed] = useState(initialSpecs.printSpeed || "");
   const [resolution, setResolution] = useState(initialSpecs.resolution || "");
 
   const [isFirst, setIsFirst] = useState(true);
@@ -120,7 +123,7 @@ export function UpdateResourceModal({
         setStorage(specs.storage || "");
         setScreen(specs.screen || "");
       } else {
-        setSpeed(specs.speed || "");
+        setPrintSpeed(specs.printSpeed || "");
         setResolution(specs.resolution || "");
       }
     }
@@ -145,7 +148,7 @@ export function UpdateResourceModal({
             screen,
           })
         : JSON.stringify({
-            speed,
+            speed: printSpeed,
             resolution,
           });
 
@@ -182,6 +185,7 @@ export function UpdateResourceModal({
                 Numéro d'inventaire*
               </label>
               <Input
+                disabled={!CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER])}
                 id="inventoryNumber"
                 value={inventoryNumber}
                 onChange={(e) => setInventoryNumber(e.target.value)}
@@ -195,6 +199,7 @@ export function UpdateResourceModal({
                 Type*
               </label>
               <Select
+                disabled={!CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER])}
                 value={type}
                 onValueChange={(value) => setType(value as ResourceType)}
               >
@@ -217,6 +222,7 @@ export function UpdateResourceModal({
                 Marque*
               </label>
               <Input
+                disabled={!CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER])}
                 id="brand"
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
@@ -253,69 +259,73 @@ export function UpdateResourceModal({
               </Select>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="acquisitionDate" className="text-right">
-                Date d'acquisition
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "col-span-3 justify-start text-left font-normal",
-                      !acquisitionDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {acquisitionDate ? (
-                      format(acquisitionDate, "PPP")
-                    ) : (
-                      <span>Choisir une date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={acquisitionDate}
-                    onSelect={setAcquisitionDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="acquisitionDate" className="text-right">
+                  Date d'acquisition
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "col-span-3 justify-start text-left font-normal",
+                        !acquisitionDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {acquisitionDate ? (
+                        format(acquisitionDate, "PPP")
+                      ) : (
+                        <span>Choisir une date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={acquisitionDate}
+                      onSelect={setAcquisitionDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="warrantyEndDate" className="text-right">
-                Fin de garantie
-              </label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "col-span-3 justify-start text-left font-normal",
-                      !warrantyEndDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {warrantyEndDate ? (
-                      format(warrantyEndDate, "PPP")
-                    ) : (
-                      <span>Choisir une date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={warrantyEndDate}
-                    onSelect={setWarrantyEndDate}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+            {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="warrantyEndDate" className="text-right">
+                  Fin de garantie
+                </label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "col-span-3 justify-start text-left font-normal",
+                        !warrantyEndDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {warrantyEndDate ? (
+                        format(warrantyEndDate, "PPP")
+                      ) : (
+                        <span>Choisir une date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={warrantyEndDate}
+                      onSelect={setWarrantyEndDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="department" className="text-right">
@@ -354,7 +364,6 @@ export function UpdateResourceModal({
                   setDepartmentId("");
                   setIsFirst(false);
                 }}
-
                 disabled={departmentId != "" && !isFirst}
               >
                 <SelectTrigger className="col-span-3">
@@ -370,111 +379,115 @@ export function UpdateResourceModal({
               </Select>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="supplier" className="text-right">
-                Fournisseur
-              </label>
-              <Select value={supplierId} onValueChange={setSupplierId}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Sélectionnez un fournisseur" />
-                </SelectTrigger>
-                <SelectContent>
-                  {suppliers.map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id}>
-                      {supplier.companyName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <label htmlFor="supplier" className="text-right">
+                  Fournisseur
+                </label>
+                <Select value={supplierId} onValueChange={setSupplierId}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Sélectionnez un fournisseur" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.id}>
+                        {supplier.companyName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Computer specific fields */}
-            {type === ResourceType.COMPUTER && (
-              <>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="cpu" className="text-right">
-                    CPU*
-                  </label>
-                  <Input
-                    id="cpu"
-                    value={cpu}
-                    onChange={(e) => setCpu(e.target.value)}
-                    placeholder="Ex: Intel Core i7"
-                    className="col-span-3"
-                  />
-                </div>
+            {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) &&
+              type === ResourceType.COMPUTER && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="cpu" className="text-right">
+                      CPU*
+                    </label>
+                    <Input
+                      id="cpu"
+                      value={cpu}
+                      onChange={(e) => setCpu(e.target.value)}
+                      placeholder="Ex: Intel Core i7"
+                      className="col-span-3"
+                    />
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="ram" className="text-right">
-                    RAM*
-                  </label>
-                  <Input
-                    id="ram"
-                    value={ram}
-                    onChange={(e) => setRam(e.target.value)}
-                    placeholder="Ex: 16GB DDR4"
-                    className="col-span-3"
-                  />
-                </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="ram" className="text-right">
+                      RAM*
+                    </label>
+                    <Input
+                      id="ram"
+                      value={ram}
+                      onChange={(e) => setRam(e.target.value)}
+                      placeholder="Ex: 16GB DDR4"
+                      className="col-span-3"
+                    />
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="storage" className="text-right">
-                    Stockage*
-                  </label>
-                  <Input
-                    id="storage"
-                    value={storage}
-                    onChange={(e) => setStorage(e.target.value)}
-                    placeholder="Ex: 512GB SSD"
-                    className="col-span-3"
-                  />
-                </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="storage" className="text-right">
+                      Stockage*
+                    </label>
+                    <Input
+                      id="storage"
+                      value={storage}
+                      onChange={(e) => setStorage(e.target.value)}
+                      placeholder="Ex: 512GB SSD"
+                      className="col-span-3"
+                    />
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="screen" className="text-right">
-                    Écran*
-                  </label>
-                  <Input
-                    id="screen"
-                    value={screen}
-                    onChange={(e) => setScreen(e.target.value)}
-                    placeholder="Ex: 24\' FHD"
-                    className="col-span-3"
-                  />
-                </div>
-              </>
-            )}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="screen" className="text-right">
+                      Écran*
+                    </label>
+                    <Input
+                      id="screen"
+                      value={screen}
+                      onChange={(e) => setScreen(e.target.value)}
+                      placeholder="Ex: 24\' FHD"
+                      className="col-span-3"
+                    />
+                  </div>
+                </>
+              )}
 
             {/* Printer specific fields */}
-            {type === ResourceType.PRINTER && (
-              <>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="speed" className="text-right">
-                    Vitesse d'impression*
-                  </label>
-                  <Input
-                    id="speed"
-                    value={speed}
-                    onChange={(e) => setSpeed(e.target.value)}
-                    placeholder="Ex: 30 ppm"
-                    className="col-span-3"
-                  />
-                </div>
+            {CheckRole(user?.role!, [UserRole.RESOURCE_MANAGER]) &&
+              type === ResourceType.PRINTER && (
+                <>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="speed" className="text-right">
+                      Vitesse d'impression*
+                    </label>
+                    <Input
+                      id="speed"
+                      value={printSpeed}
+                      onChange={(e) => setPrintSpeed(e.target.value)}
+                      placeholder="Ex: 30 ppm"
+                      className="col-span-3"
+                    />
+                  </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <label htmlFor="resolution" className="text-right">
-                    Résolution*
-                  </label>
-                  <Input
-                    id="resolution"
-                    value={resolution}
-                    onChange={(e) => setResolution(e.target.value)}
-                    placeholder="Ex: 1200x1200 dpi"
-                    className="col-span-3"
-                  />
-                </div>
-              </>
-            )}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <label htmlFor="resolution" className="text-right">
+                      Résolution*
+                    </label>
+                    <Input
+                      id="resolution"
+                      value={resolution}
+                      onChange={(e) => setResolution(e.target.value)}
+                      placeholder="Ex: 1200x1200 dpi"
+                      className="col-span-3"
+                    />
+                  </div>
+                </>
+              )}
           </div>
         </div>
 

@@ -13,6 +13,14 @@ export function TenderSkeleton() {
         <div className="grid grid-cols-2 gap-4">
           <div className="h-4 bg-muted rounded"></div>
           <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded"></div>
         </div>
         <div className="h-4 bg-muted rounded w-1/4"></div>
       </CardContent>

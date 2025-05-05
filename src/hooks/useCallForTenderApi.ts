@@ -42,6 +42,21 @@ export const useCreateTender = () => {
   });
 };
 
+export const useChangeTenderStatus = () => {
+  const api = useAPI();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await api.put(`/call-for-tender/${id}/status`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenders"] });
+    },
+  });
+};
+
 export const useUpdateTender = () => {
   const api = useAPI();
   const queryClient = useQueryClient();

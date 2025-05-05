@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateSupplier } from "@/hooks/useSupplierApi";
 import { Supplier, UserRole } from "@/lib/types";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +11,8 @@ export function Register() {
   const { toast } = useToast();
   const { mutate: createSupplier } = useCreateSupplier();
   const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [fullName, setFullName] = useState("");
   const [userNumber, setUserNumber] = useState("");
@@ -34,6 +37,7 @@ export function Register() {
   };
 
   const handleCreate = () => {
+    //@ts-expect-error
     const supplierData: Omit<Supplier, "id"> = {
       fullName,
       userNumber,
@@ -103,17 +107,29 @@ export function Register() {
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
+            <div className="grid grid-cols-4 items-center gap-4 relative">
               <label htmlFor="password" className="text-right">
                 Mot de passe*
               </label>
               <Input
                 id="password"
                 value={password}
+                type={showPassword ? "text" : "password"}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mot de passe"
                 className="col-span-3"
               />
+              {showPassword ? (
+                <EyeOff
+                  onClick={() => setShowPassword(false)}
+                  className="cursor-pointer size-4 absolute right-3 text-muted-foreground"
+                />
+              ) : (
+                <Eye
+                  onClick={() => setShowPassword(true)}
+                  className="cursor-pointer size-4 absolute right-3 text-muted-foreground"
+                />
+              )}
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="companyName" className="text-right">

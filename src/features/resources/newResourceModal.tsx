@@ -64,7 +64,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
   const [cpu, setCpu] = useState("");
   const [ram, setRam] = useState("");
   const [storage, setStorage] = useState("");
-  const [screen, setScreen] = useState("");
+  const [monitor, setMonitor] = useState("");
 
   // Printer specific fields
   const [speed, setSpeed] = useState("");
@@ -86,7 +86,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
             cpu,
             ram,
             storage,
-            screen,
+            monitor,
           })
         : JSON.stringify({
             speed,
@@ -141,7 +141,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
     setCpu("");
     setRam("");
     setStorage("");
-    setScreen("");
+    setMonitor("");
     setSpeed("");
     setResolution("");
   };
@@ -420,8 +420,8 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
                   </label>
                   <Input
                     id="screen"
-                    value={screen}
-                    onChange={(e) => setScreen(e.target.value)}
+                    value={monitor}
+                    onChange={(e) => setMonitor(e.target.value)}
                     placeholder="Ex: 24\' FHD"
                     className="col-span-3"
                     disabled={isPending}
