@@ -5,15 +5,25 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllRequests = () => {
   const api = useAPI();
+  return useQuery({
+    queryKey: ["requests"],
+    queryFn: async () => {
+      const { data } = await api.get<ResourceRequest[]>("/resource-request");
+      return data;
+    },
+  });
+};
+
+export const useGetAllRequestsByUser = () => {
+  const api = useAPI();
   const { user } = useAppSelector((state) => state.auth);
 
   return useQuery({
     queryKey: ["requests"],
     queryFn: async () => {
       try {
-        const { data } = await api.post<ResourceRequest[]>(
-          "/resource-request/all",
-          user
+        const { data } = await api.get<ResourceRequest[]>(
+          `/resource-request/all/${user?.id}`
         );
 
         // Convertir specs string -> object

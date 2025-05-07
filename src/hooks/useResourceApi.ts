@@ -17,18 +17,18 @@ export const useGetAllResources = () => {
   });
 };
 
-export const useGetResourcesByUserId = (userId: string) => {
-  const api = useAPI();
+// export const useGetResourcesByUserId = (userId: string) => {
+//   const api = useAPI();
 
-  return useQuery<Resource[]>({
-    queryKey: ["resources", userId],
-    queryFn: async () => {
-      const { data } = await api.get(`/resources/${userId}`);
-      return data;
-    },
-    enabled: !!userId, // wait until userId is available
-  });
-};
+//   return useQuery<Resource[]>({
+//     queryKey: ["resources", userId],
+//     queryFn: async () => {
+//       const { data } = await api.get(`/resources/${userId}`);
+//       return data;
+//     },
+//     enabled: !!userId, // wait until userId is available
+//   });
+// };
 
 export const useCreateResource = () => {
   const api = useAPI();

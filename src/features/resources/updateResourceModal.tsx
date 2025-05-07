@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -83,7 +81,7 @@ export function UpdateResourceModal({
   const [cpu, setCpu] = useState(initialSpecs.cpu || "");
   const [ram, setRam] = useState(initialSpecs.ram || "");
   const [storage, setStorage] = useState(initialSpecs.storage || "");
-  const [screen, setScreen] = useState(initialSpecs.monitor || "");
+  const [monitor, setMonitor] = useState(initialSpecs.monitor || "");
 
   // Printer specific fields
   const [printSpeed, setPrintSpeed] = useState(initialSpecs.printSpeed || "");
@@ -121,7 +119,7 @@ export function UpdateResourceModal({
         setCpu(specs.cpu || "");
         setRam(specs.ram || "");
         setStorage(specs.storage || "");
-        setScreen(specs.screen || "");
+        setMonitor(specs.monitor || "");
       } else {
         setPrintSpeed(specs.printSpeed || "");
         setResolution(specs.resolution || "");
@@ -145,7 +143,7 @@ export function UpdateResourceModal({
             cpu,
             ram,
             storage,
-            screen,
+            monitor,
           })
         : JSON.stringify({
             speed: printSpeed,
@@ -448,8 +446,8 @@ export function UpdateResourceModal({
                     </label>
                     <Input
                       id="screen"
-                      value={screen}
-                      onChange={(e) => setScreen(e.target.value)}
+                      value={monitor}
+                      onChange={(e) => setMonitor(e.target.value)}
                       placeholder="Ex: 24\' FHD"
                       className="col-span-3"
                     />

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Header } from "@/features/tenders/tendersHeader";
 import { NewTenderModal } from "@/features/tenders/NewTenderModal";

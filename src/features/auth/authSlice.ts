@@ -41,7 +41,7 @@ export const login = createAsyncThunk(
         user: response.data.user,
       };
     } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response.data.message);
+      return thunkAPI.rejectWithValue(error.response.data);
     }
   }
 );
@@ -102,7 +102,8 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.loading = false;
-        state.error = (action.payload as string) || "Login failed";
+        // state.error = (action.payload as string) || "Login failed";
+        state.error = action.payload as string;
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.user = action.payload.user;

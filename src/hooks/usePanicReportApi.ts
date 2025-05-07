@@ -24,11 +24,7 @@ export const useCreatePanicReport = () => {
         status?: PanicReportStatus;
       }
     ) => {
-      const { data } = await api.post("/panic-reports", {
-        ...newReport,
-        reportedAt: new Date(),
-        status: newReport.status || "OPEN",
-      });
+      const { data } = await api.post("/panic-reports", newReport);
       return data;
     },
     onSuccess: () => {

@@ -1,11 +1,3 @@
-// export type Role =
-//   | "SUPER_ADMIN"
-//   | "TEACHER"
-//   | "TECHNICIAN"
-//   | "SUPPLIER"
-//   | "RESOURCE_MANAGER"
-//   | "DEPARTMENT_HEAD";
-
 import { JSX } from "react";
 import {
   AlertCircle,
@@ -19,7 +11,6 @@ import {
   Wrench,
   XCircle,
 } from "lucide-react";
-import { z } from "zod";
 
 // User Roles
 export enum UserRole {
@@ -52,59 +43,6 @@ export enum PanicReportStatus {
   RESOLVED = "RESOLVED",
   CLOSED = "CLOSED",
 }
-
-// Zod schemas for validation
-export const ComputerSchema = z.object({
-  brand: z.string().min(1, "La marque est requise"),
-  cpu: z.string().min(1, "Le CPU est requis"),
-  ram: z.string().min(1, "La RAM est requise"),
-  storage: z.string().min(1, "Le disque dur est requis"),
-  screen: z.string().min(1, "L'écran est requis"),
-});
-
-export const PrinterSchema = z.object({
-  brand: z.string().min(1, "La marque est requise"),
-  speed: z.string().min(1, "La vitesse d'impression est requise"),
-  resolution: z.string().min(1, "La résolution est requise"),
-});
-
-export const ResourceRequestSchema = z.object({
-  departmentId: z.string().min(1, "Le département est requis"),
-  items: z
-    .array(
-      z.object({
-        type: z.nativeEnum(ResourceType),
-        quantity: z.number().min(1, "La quantité doit être supérieure à 0"),
-        specifications: z.union([ComputerSchema, PrinterSchema, z.object({})]),
-      })
-    )
-    .min(1, "Au moins un article est requis"),
-  justification: z.string().optional(),
-});
-
-export const SupplierBidSchema = z.object({
-  tenderId: z.string().min(1, "L'appel d'offre est requis"),
-  deliveryDate: z.date(),
-  warrantyPeriod: z.string().min(1, "La durée de garantie est requise"),
-  items: z
-    .array(
-      z.object({
-        itemId: z.string().min(1),
-        brand: z.string().min(1),
-        model: z.string().min(1),
-        price: z.number().min(0),
-      })
-    )
-    .min(1, "Au moins un article est requis"),
-  totalPrice: z.number().min(0),
-});
-
-export const MaintenanceRequestSchema = z.object({
-  resourceId: z.string().min(1, "La ressource est requise"),
-  issueDescription: z.string().min(1, "La description est requise"),
-  issueFrequency: z.enum(["RARE", "FREQUENT", "PERMANENT"]),
-  issueType: z.enum(["SOFTWARE", "HARDWARE"]),
-});
 
 // Type definitions
 export type User = {
@@ -184,21 +122,46 @@ export type Supplier = User & {
 export type PanicReport = {
   id: string;
   description: string;
-  reportedAt: Date;
+  reportDate: Date;
 
   status: PanicReportStatus;
   teacher: User;
   resource: Resource;
-  resolution?: string;
-  resolvedAt?: Date;
+  maintenanceRecord: MaintenanceRecord;
 };
+
+export enum Severity {
+  NORMAL = "NORMAL",
+  SEVERE = "SEVERE",
+}
+
+export enum Frequency {
+  RARE = "RARE",
+  FREQUENT = "FREQUENT",
+  PERMANENT = "PERMANENT",
+}
+
+export enum Origin {
+  HARDWARE = "HARDWARE",
+  SOFTWARE = "SOFTWARE",
+  UTILITY = "UTILITY",
+}
+
+export enum MaintenanceStatus {
+  IN_PROGRESS = "IN_PROGRESS",
+  RESOLVED = "RESOLVED",
+  RETURNED = "RETURNED",
+}
 
 export type MaintenanceRecord = {
   id: string;
   details: string;
   maintenanceDate: Date;
+  severity: Severity;
+  frequency: Frequency;
+  origin: Origin;
+  status: MaintenanceStatus;
   technician: User;
-  resource: Resource;
   panicReport?: PanicReport;
 };
 

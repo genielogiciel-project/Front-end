@@ -5,20 +5,18 @@ import { RequestList } from "@/features/requests/RequestList";
 import { NewRequestModal } from "@/features/requests/newRequestModal";
 import { RequestStatus } from "@/lib/types";
 import {
-  useGetAllRequests,
+  useGetAllRequestsByUser,
   useCreateRequest,
-  useUpdateRequest,
   useDeleteRequest,
 } from "@/hooks/useRequestApi";
 
 export default function Requests() {
-  const { data: requests, isLoading } = useGetAllRequests();
+  const { data: requests, isLoading } = useGetAllRequestsByUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "ALL">(
     "ALL"
   );
   const { mutate: createRequest } = useCreateRequest();
-  const { mutate: updateRequest } = useUpdateRequest();
   const { mutate: deleteRequest } = useDeleteRequest();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,7 +46,6 @@ export default function Requests() {
         isLoading={isLoading}
         // @ts-expect-error
         requests={filteredRequests}
-        onUpdate={(id, updatedData) => updateRequest({ id, ...updatedData })}
         onDelete={(id) => {
           if (confirm("Are you sure you want to delete this request?")) {
             deleteRequest(id);

@@ -57,19 +57,23 @@ const navigation = [
     name: "Ressources",
     href: "/resources",
     icon: Package,
-    roles: [UserRole.RESOURCE_MANAGER, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
+    roles: [
+      UserRole.RESOURCE_MANAGER,
+      UserRole.DEPARTMENT_HEAD,
+      UserRole.TEACHER,
+    ],
   },
   {
     name: "Rapports de panne",
     href: "/panic",
     icon: AlertCircle,
-    roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD],
+    roles: [UserRole.TECHNICIAN, UserRole.TEACHER, UserRole.DEPARTMENT_HEAD],
   },
   {
     name: "Maintenance",
     href: "/maintenance",
     icon: AlertTriangle,
-    roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD, UserRole.TEACHER],
+    roles: [UserRole.TECHNICIAN, UserRole.DEPARTMENT_HEAD],
   },
 
   {

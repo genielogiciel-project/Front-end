@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,11 +18,10 @@ import {
   Clock,
   ArrowLeftRight,
 } from "lucide-react";
-import { PanicReportStatus } from "@/lib/types";
+import { MaintenanceStatus, PanicReportStatus } from "@/lib/types";
 import { NewMaintenanceForm } from "@/features/maintenance/NewMaintenanceForm";
 import { useGetAllMaintenanceRecords } from "@/hooks/useMaintenanceRecordApi"; // ✅ from your file
 import { useGetAllPanicReports } from "@/hooks/usePanicReportApi"; // You need to create this
-import { useGetAllTechnicians } from "@/hooks/useUserApi"; // You need to create this
 
 export default function Maintenance() {
   const [formOpen, setFormOpen] = useState(false);
@@ -35,7 +32,6 @@ export default function Maintenance() {
 
   const { data: maintenanceRecords = [] } = useGetAllMaintenanceRecords();
   const { data: panicReports = [] } = useGetAllPanicReports();
-  const { data: technicians = [] } = useGetAllTechnicians();
 
   const filteredRequests = maintenanceRecords.filter((request) => {
     const matchesSearch =
@@ -69,7 +65,7 @@ export default function Maintenance() {
         <h1 className="text-3xl font-bold">Maintenance</h1>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Signaler un problème
+          Ouvrir un OT Maintenance
         </Button>
       </div>
 
@@ -116,24 +112,22 @@ export default function Maintenance() {
                       Maintenance #{request.id}
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                      Ressource: {request.panicReport?.resource?.id}
+                      Ressource:{" "}
+                      {request.panicReport?.resource?.inventoryNumber}
                     </p>
                   </div>
                 </div>
                 <div
                   className={`px-3 py-1 rounded-full text-sm ${
-                    request.panicReport?.status === PanicReportStatus.RESOLVED
+                    request?.status === MaintenanceStatus.RESOLVED
                       ? "bg-green-100 text-green-800"
-                      : request.panicReport?.status ===
-                          PanicReportStatus.IN_PROGRESS
+                      : request?.status === MaintenanceStatus.IN_PROGRESS
                         ? "bg-blue-100 text-blue-800"
-                        : request.panicReport?.status ===
-                            PanicReportStatus.CLOSED
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-yellow-100 text-yellow-800"
+                        : request?.status === MaintenanceStatus.RETURNED &&
+                          "bg-purple-100 text-purple-800"
                   }`}
                 >
-                  {request.panicReport?.status}
+                  {request?.status}
                 </div>
               </div>
             </CardHeader>
@@ -170,8 +164,11 @@ export default function Maintenance() {
       <NewMaintenanceForm
         open={formOpen}
         onClose={() => setFormOpen(false)}
-        technicians={technicians}
-        panicReports={panicReports?.filter((r) => !r.resolution)} // unresolved
+        panicReports={panicReports?.filter(
+          (r) =>
+            r.status !== PanicReportStatus.CLOSED &&
+            r.status !== PanicReportStatus.RESOLVED
+        )} // unresolved
       />
     </div>
   );

@@ -65,7 +65,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
   const [monitor, setMonitor] = useState("");
 
   // Printer specific fields
-  const [speed, setSpeed] = useState("");
+  const [printSpeed, setPrintSpeed] = useState("");
   const [resolution, setResolution] = useState("");
 
   const handleSubmit = () => {
@@ -87,7 +87,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
             monitor,
           })
         : JSON.stringify({
-            speed,
+            printSpeed,
             resolution,
           });
 
@@ -103,8 +103,6 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
       ...(userId && { user: { id: userId } }),
       ...(supplierId && { supplier: { id: supplierId } }),
     };
-
-    console.log(resourceData);
 
     // @ts-expect-error
     createResource(resourceData, {
@@ -141,7 +139,7 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
     setRam("");
     setStorage("");
     setMonitor("");
-    setSpeed("");
+    setPrintSpeed("");
     setResolution("");
   };
 
@@ -438,8 +436,8 @@ export function NewResourceModal({ open, onClose }: NewResourceModalProps) {
                   </label>
                   <Input
                     id="speed"
-                    value={speed}
-                    onChange={(e) => setSpeed(e.target.value)}
+                    value={printSpeed}
+                    onChange={(e) => setPrintSpeed(e.target.value)}
                     placeholder="Ex: 30 ppm"
                     className="col-span-3"
                     disabled={isPending}

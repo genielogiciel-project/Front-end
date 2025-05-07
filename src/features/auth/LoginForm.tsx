@@ -16,12 +16,15 @@ import {
 import { gsap } from "gsap";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { Check, X } from "lucide-react";
+import { useAuth } from "@/auth/useAuth";
 
 export default function LoginForm() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
+  const { error } = useAuth(false);
   const navigate = useNavigate();
-  const [userNumber, setUserNumber] = useState("00000");
+  const [userNumber, setUserNumber] = useState("supplier2");
   const [password, setPassword] = useState("0");
 
   useEffect(() => {
@@ -40,17 +43,50 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(login({ userNumber, password }));
+      const { payload }: any = await dispatch(login({ userNumber, password }));
+
+      if (typeof payload === "string" && payload) {
+        toast({
+          title: (
+            <div className="flex flex-row items-center gap-2">
+              <X className="text-red-500" />
+              <span>Connexion echouee</span>
+            </div>
+          ) as any,
+          description: (
+            <span className="text-red-500">
+              {/* Votre user number ou mot de passe est incorrect */}
+              {payload}
+            </span>
+          ),
+        });
+        return;
+      }
+
       toast({
-        title: "Connexion",
+        title: (
+          <div className="flex flex-row items-center gap-2">
+            <Check className="text-green-500" />
+            <span>Connexion</span>
+          </div>
+        ) as any,
         description: "Connexion reussie",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (_) {
       toast({
-        title: "Connexion",
-        description: "Connexion echouee",
-        variant: "destructive",
+        title: (
+          <div className="flex flex-row items-center gap-2">
+            <X className="text-red-500" />
+            <span>Connexion echouee</span>
+          </div>
+        ) as any,
+        description: (
+          <span className="text-red-500">
+            {/* Votre user number ou mot de passe est incorrect */}
+            {error}
+          </span>
+        ),
       });
     }
   };

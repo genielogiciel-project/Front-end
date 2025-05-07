@@ -2,7 +2,12 @@ import { useEffect } from "react";
 import { useAppSelector } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserRole, RequestStatus, PanicReportStatus } from "@/lib/types";
+import {
+  UserRole,
+  RequestStatus,
+  MaintenanceStatus,
+  ResourceRequest,
+} from "@/lib/types";
 import {
   PieChart,
   Pie,
@@ -16,15 +21,18 @@ import {
   Legend,
 } from "recharts";
 import { gsap } from "gsap";
+import { useGetAllTenders } from "@/hooks/useCallForTenderApi";
+import { useGetAllResources } from "@/hooks/useResourceApi";
+import { ResourceStatus, MaintenanceRecord } from "../lib/types";
+import { useGetAllMaintenanceRecords } from "@/hooks/useMaintenanceRecordApi";
+import { useGetAllRequests } from "@/hooks/useRequestApi";
 
 export default function Dashboard() {
   const { user } = useAppSelector((state) => state.auth);
-  const { resources } = useAppSelector((state) => state.resources);
-  const requests: any = [];
-  const { requests: maintenanceRequests } = useAppSelector(
-    (state) => state.maintenance
-  );
-  const { tenders } = useAppSelector((state) => state.suppliers);
+  const { data: resources } = useGetAllResources();
+  const { data: requests } = useGetAllRequests();
+  const { data: maintenanceRequests } = useGetAllMaintenanceRecords();
+  const { data: tenders } = useGetAllTenders();
 
   useEffect(() => {
     // Animate cards with GSAP
@@ -43,67 +51,69 @@ export default function Dashboard() {
   }, []);
 
   // Calculate statistics
-  const totalResources = resources.length;
-  const availableResources = resources.filter(
-    (r) => r.status === "AVAILABLE"
+  const totalResources = resources?.length;
+  const availableResources = resources?.filter(
+    (r) => r.status === ResourceStatus.AVAILABLE
   ).length;
-  const assignedResources = resources.filter(
-    (r) => r.status === "ASSIGNED"
+  const assignedResources = resources?.filter(
+    (r) => r.status === ResourceStatus.ASSIGNED
   ).length;
-  const maintenanceResources = resources.filter(
-    (r) => r.status === "MAINTENANCE"
-  ).length;
-
-  const totalRequests = requests.length;
-  const pendingRequests = requests.filter(
-    (r: any) => r.status === RequestStatus.SUBMITTED
-  ).length;
-  const approvedRequests = requests.filter(
-    (r: any) => r.status === RequestStatus.VALIDATED
+  const maintenanceResources = resources?.filter(
+    (r) => r.status === ResourceStatus.MAINTENANCE
   ).length;
 
-  const totalMaintenanceRequests = maintenanceRequests.length;
-
-  const inProgressMaintenanceRequests = maintenanceRequests.filter(
-    (r) => r.status === PanicReportStatus.IN_PROGRESS
+  const totalRequests = requests?.length;
+  const pendingRequests = requests?.filter(
+    (r: ResourceRequest) => r.status === RequestStatus.SUBMITTED
+  ).length;
+  const approvedRequests = requests?.filter(
+    (r: ResourceRequest) => r.status === RequestStatus.VALIDATED
   ).length;
 
-  const totalTenders = tenders.length;
-  const openTenders = tenders.filter((t) => t.status === "OPEN").length;
+  const totalMaintenanceRequests = maintenanceRequests?.length;
+
+  const inProgressMaintenanceRequests = maintenanceRequests?.filter(
+    (r: MaintenanceRecord) => r.status === MaintenanceStatus.IN_PROGRESS
+  ).length;
+
+  const totalTenders = tenders?.length;
+  const openTenders = tenders?.filter((t) => t?.open === true).length;
 
   // Chart data
   const resourceStatusData = [
     { name: "Disponible", value: availableResources, color: "#22c55e" },
     { name: "Affecté", value: assignedResources, color: "#3b82f6" },
     { name: "Maintenance", value: maintenanceResources, color: "#f97316" },
-    {
-      name: "Réformé",
-      value:
-        totalResources -
-        availableResources -
-        assignedResources -
-        maintenanceResources,
-      color: "#ef4444",
-    },
+    // {
+    //   name: "Réformé",
+    //   value:
+    //     totalResources! -
+    //     availableResources! -
+    //     assignedResources! -
+    //     maintenanceResources!,
+    //   color: "#ef4444",
+    // },
   ];
 
   const requestStatusData = [
     {
       name: "Brouillon",
-      value: requests.filter((r: any) => r.status === RequestStatus.SUBMITTED)
-        .length,
+      value: requests?.filter((r: any) => r.status === RequestStatus.SUBMITTED)
+        ?.length,
       color: "#94a3b8",
     },
     { name: "Soumis", value: pendingRequests, color: "#f59e0b" },
     { name: "Approuvé", value: approvedRequests, color: "#22c55e" },
     {
       name: "Livré",
-      value: requests.filter((r: any) => r.status === RequestStatus.SENT).length,
+      value: requests?.filter((r: any) => r.status === RequestStatus.SENT)
+        ?.length,
       color: "#10b981",
     },
     {
       name: "Rejeté",
-      value: requests.filter((r: any) => r.status === RequestStatus.REJECTED).length,
+      value: requests?.filter((r: any) => r.status === RequestStatus.REJECTED)
+        ?.length,
       color: "#ef4444",
     },
   ];
@@ -111,11 +121,11 @@ export default function Dashboard() {
   const resourceTypeData = [
     {
       name: "Ordinateurs",
-      value: resources.filter((r) => r.type === "COMPUTER").length,
+      value: resources?.filter((r) => r.type === "COMPUTER")?.length,
     },
     {
       name: "Imprimantes",
-      value: resources.filter((r) => r.type === "PRINTER").length,
+      value: resources?.filter((r) => r.type === "PRINTER")?.length,
     },
   ];
 

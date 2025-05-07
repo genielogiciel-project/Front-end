@@ -7,14 +7,12 @@ import { ResourceRequest } from "@/lib/types";
 interface RequestListProps {
   isLoading: boolean;
   requests: ResourceRequest[];
-  onUpdate: (id: string, updatedData: any) => void;
   onDelete: (id: string) => void;
 }
 
 export function RequestList({
   isLoading,
   requests,
-  onUpdate,
   onDelete,
 }: RequestListProps) {
   const [editingRequest, setEditingRequest] = useState<any>(null);

@@ -98,6 +98,15 @@ export function TenderCard({
     }
   }
 
+  // check if there is a proposal accepted
+  let hasAcceptedProposal = false;
+  for (const proposal of tender.proposals) {
+    if (proposal.accepted) {
+      hasAcceptedProposal = true;
+      break;
+    }
+  }
+
   const { mutate: acceptRefuseProposals } = useAcceptRefuseProposals();
   const handleSelectProposal = (selectedId: string, rejectedIds: string[]) => {
     const resManagerId = user?.id!;
@@ -224,43 +233,48 @@ export function TenderCard({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   {onEdit &&
-                    CheckRole(userRole!, [UserRole.RESOURCE_MANAGER]) && (
+                    CheckRole(userRole!, [UserRole.RESOURCE_MANAGER]) &&
+                    !hasAcceptedProposal && (
                       <DropdownMenuItem onClick={() => onEdit(tender)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Modifier
                       </DropdownMenuItem>
                     )}
 
-                  {CheckRole(userRole!, [UserRole.RESOURCE_MANAGER]) && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() => onCloseTender?.(tender.id)}
-                      >
-                        {status === "OPEN" ? (
-                          <Ban className="mr-2 h-4 w-4" />
-                        ) : (
-                          <Clock className="mr-2 h-4 w-4" />
-                        )}
-                        {status === "OPEN" ? "Clôturer" : "Rouvrir"}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => onDelete?.(tender.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Supprimer
-                      </DropdownMenuItem>
-                    </>
-                  )}
+                  {CheckRole(userRole!, [UserRole.RESOURCE_MANAGER]) &&
+                    !hasAcceptedProposal && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => onCloseTender?.(tender.id)}
+                        >
+                          {status === "OPEN" ? (
+                            <Ban className="mr-2 h-4 w-4" />
+                          ) : (
+                            <Clock className="mr-2 h-4 w-4" />
+                          )}
+                          {status === "OPEN" ? "Clôturer" : "Rouvrir"}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => onDelete?.(tender.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </>
+                    )}
 
-                  {isSupplier && status === "OPEN" && canAddProposal && (
-                    <DropdownMenuItem
-                      onClick={() => setOpenProposalDialog(true)}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Soumettre une proposition
-                    </DropdownMenuItem>
-                  )}
+                  {isSupplier &&
+                    status === "OPEN" &&
+                    canAddProposal &&
+                    !hasAcceptedProposal && (
+                      <DropdownMenuItem
+                        onClick={() => setOpenProposalDialog(true)}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Soumettre une proposition
+                      </DropdownMenuItem>
+                    )}
                   <DropdownMenuItem
                     // onClick={() => onShowProposals?.(tender.id)}
                     onClick={handleShowProposals}
@@ -281,7 +295,7 @@ export function TenderCard({
                       <Plus className="h-4 w-4" />
                     </button>
                   </DialogTrigger> */}
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl max-h-7/8 overflow-auto">
                     <DialogHeader>
                       <DialogTitle>Soumettre une proposition</DialogTitle>
                     </DialogHeader>

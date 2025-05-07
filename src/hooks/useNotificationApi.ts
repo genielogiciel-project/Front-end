@@ -1,5 +1,6 @@
 import { useAPI } from "@/api";
-import { Notification } from "@/lib/types";
+import { useAppSelector } from "@/lib/store";
+import { Notification, NotificationType } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllNotifications = () => {
@@ -14,13 +15,14 @@ export const useGetAllNotifications = () => {
   });
 };
 
-export const useGetAllNotificationsByUser = (userId: string) => {
+export const useGetAllNotificationsByUser = () => {
   const api = useAPI();
+  const { user } = useAppSelector((state) => state.auth);
 
   return useQuery<Notification[]>({
     queryKey: ["notifications"],
     queryFn: async () => {
-      const { data } = await api.get(`/notification/user/${userId}`);
+      const { data } = await api.get(`/notification/user/${user?.id}`);
       return data;
     },
   });
@@ -41,13 +43,18 @@ export const useReadNotification = () => {
   });
 };
 
-export const useCreateNotification = () => {
+export const useSendMessage = () => {
   const api = useAPI();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newDepartment: Omit<Notification, "id">) => {
-      const { data } = await api.post("/notification", newDepartment);
+    mutationFn: async (newMessage: {
+      sender: string;
+      receivers: string[];
+      message: string;
+      type: NotificationType;
+    }) => {
+      const { data } = await api.post("/notification/send", newMessage);
       return data;
     },
     onSuccess: () => {

@@ -19,11 +19,11 @@ export const useCreateMaintenanceRecord = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newRecord: Omit<MaintenanceRecord, "id" | "maintenanceDate">) => {
-      const { data } = await api.post("/maintenance-records", {
-        ...newRecord,
-        maintenanceDate: new Date(),
-      });
+    mutationFn: async (
+      newRecord: Omit<MaintenanceRecord, "id" | "maintenanceDate">
+    ) => {
+      console.log(newRecord);
+      const { data } = await api.post("/maintenance-records", newRecord);
       return data;
     },
     onSuccess: () => {
@@ -37,7 +37,13 @@ export const useUpdateMaintenanceRecord = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updatedData }: { id: string; updatedData: Partial<MaintenanceRecord> }) => {
+    mutationFn: async ({
+      id,
+      updatedData,
+    }: {
+      id: string;
+      updatedData: Partial<MaintenanceRecord>;
+    }) => {
       const { data } = await api.put(`/maintenance-records/${id}`, updatedData);
       return data;
     },
